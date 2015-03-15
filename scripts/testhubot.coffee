@@ -17,7 +17,11 @@ module.exports = (robot) ->
 
   workdaysLunch = ->
     #robot.logger.info '#Hubot 알림# 곧 점심 시간입니다. 챙겨야 할 것: 식권, 자기 방과 옆 방의 동료'
-    robot.send 'mariah', '#Hubot 알림# 곧 점심 시간입니다. 챙겨야 할 것: 식권, 자기 방과 옆 방의 동료'
+    user = {}
+    #user.room = process.env.HUBOT_DEPLOY_ROOM
+    user.user = 'mariah'
+    user.type = 'chat'
+    robot.send user, '#Hubot 알림# 곧 점심 시간입니다. 챙겨야 할 것: 식권, 자기 방과 옆 방의 동료'
 
   robot.logger.info 'Initializing CronJob...'
   require('time')
@@ -26,7 +30,7 @@ module.exports = (robot) ->
   room = 'general'
   #new CronJob('0 0 18 * * 1-5', workdaysSixPm, null, true, tz)
   #new CronJob('0 */5 * * * *', everyFiveMinutes, null, true, tz)
-  new CronJob('0 25 17 * * *', workdaysLunch, null, true, tz)
+  new CronJob('0 35 17 * * *', workdaysLunch, null, true, tz)
   robot.logger.info 'CronJob initialized'
 
   robot.respond //i, (msg) ->
