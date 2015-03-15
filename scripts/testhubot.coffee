@@ -10,15 +10,24 @@
 
 module.exports = (robot) ->
 
-  cronJob = require('cron').CronJob
-  tz = 'Asia/Seoul'
-  room = 'general'
-  #new cronJob('0 0 18 * * 1-5', workdaysSixPm, null, true, tz)
-  new cronJob('0 */5 * * * *', everyFiveMinutes, null, true, tz)
-
   everyFiveMinutes = ->
+    robot.logger.info 'I will nag you every 5 minutes'
     #robot.messageRoom room, 'I will nag you every 5 minutes'
     robot.send 'mariah', 'I will nag you every 5 minutes'
+
+  workdaysLunch = ->
+    robot.logger.info '#Hubot 알림# 곧 점심 시간입니다. 챙겨야 할 것: 식권, 자기 방과 옆 방의 동료'
+	robot.send 'mariah', '#Hubot 알림# 곧 점심 시간입니다. 챙겨야 할 것: 식권, 자기 방과 옆 방의 동료'
+
+  robot.logger.info 'Initializing CronJob...'
+  require('time')
+  CronJob = require('cron').CronJob
+  tz = 'Asia/Seoul'
+  room = 'general'
+  #new CronJob('0 0 18 * * 1-5', workdaysSixPm, null, true, tz)
+  #new CronJob('0 */5 * * * *', everyFiveMinutes, null, true, tz)
+  new CronJob('0 25 17 * * *', workdaysLunch, null, true, tz)
+  robot.logger.info 'CronJob initialized'
 
   robot.respond //i, (msg) ->
     msg.send "안녕하세요? Hubot입니다."
