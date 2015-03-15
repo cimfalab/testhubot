@@ -16,8 +16,8 @@ module.exports = (robot) ->
     robot.send 'mariah', 'I will nag you every 5 minutes'
 
   workdaysLunch = ->
-    robot.logger.info '#Hubot 알림# 곧 점심 시간입니다. 챙겨야 할 것: 식권, 자기 방과 옆 방의 동료'
-	robot.send 'mariah', '#Hubot 알림# 곧 점심 시간입니다. 챙겨야 할 것: 식권, 자기 방과 옆 방의 동료'
+    #robot.logger.info '#Hubot 알림# 곧 점심 시간입니다. 챙겨야 할 것: 식권, 자기 방과 옆 방의 동료'
+    robot.send 'mariah', '#Hubot 알림# 곧 점심 시간입니다. 챙겨야 할 것: 식권, 자기 방과 옆 방의 동료'
 
   robot.logger.info 'Initializing CronJob...'
   require('time')
