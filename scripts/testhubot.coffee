@@ -10,8 +10,18 @@
 
 module.exports = (robot) ->
 
+  cronJob = require('cron').CronJob
+  tz = 'Asia/Seoul'
+  room = 'general'
+  #new cronJob('0 0 18 * * 1-5', workdaysSixPm, null, true, tz)
+  new cronJob('0 */5 * * * *', everyFiveMinutes, null, true, tz)
+
+  everyFiveMinutes = ->
+    #robot.messageRoom room, 'I will nag you every 5 minutes'
+    robot.send 'mariah', 'I will nag you every 5 minutes'
+
   robot.respond //i, (msg) ->
-    msg.send "안녕하세요? Hubot입니다. 제가 여러분께 CI 깨진 거나 브랜치가 머지되었다거나 하는 상황을 알려드리고 싶은데, 아직 할 줄 아는 것이 없습니다. 노력해 보겠습니다!"
+    msg.send "안녕하세요? Hubot입니다."
 
   robot.hear /회의/i, (msg) ->
     msg.send "#Hubot 캠페인# 회의는 간결하게, 회의 시간에는 적극적이고 겸손하게 자신의 의견을 얘기해 주세요~"

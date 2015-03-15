@@ -5,6 +5,7 @@
   "author": "Kim Kangho <cimfalab@gmail.com>",
   "description": "Hack a bot",
   "dependencies": {
+    "cron": "^1.0.9",
     "hubot": "^2.11.2",
     "hubot-diagnostics": "0.0.1",
     "hubot-google-images": "^0.1.4",
@@ -18,7 +19,9 @@
     "hubot-scripts": "^2.5.16",
     "hubot-shipit": "^0.1.2",
     "hubot-slack": "^3.3.0",
-    "hubot-youtube": "^0.1.2"
+    "hubot-youtube": "^0.1.2",
+    "time": "^0.11.1",
+	"hubot-calculator": ">= 0.4.0"
   },
   "engines": {
     "node": "0.10.x"

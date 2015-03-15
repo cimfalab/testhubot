@@ -8,5 +8,6 @@
   "hubot-rules",
   "hubot-shipit",
   "hubot-youtube",
-  "hubot-heroku-keepalive"
+  "hubot-heroku-keepalive",
+  "hubot-calculator"
 ]
