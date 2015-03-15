@@ -11,7 +11,7 @@
 module.exports = (robot) ->
 
   user = {}
-  user.room = process.env.HUBOT_DEPLOY_ROOM
+  user.room = process.env.HUBOT_DEPLOY_ROOM || '#general'
   #user.user = 'mariah'
   user.type = 'groupchat'
 
@@ -37,13 +37,10 @@ module.exports = (robot) ->
             msg = "#Hubot 알림# 하루 업무를 마무리할 시간이네요. 현재 날씨 '#{current.skytext} (#{current.temperature}°)' / 내일 날씨 '#{tomorrow.skytextday} (#{tomorrow.high}° #{tomorrow.low}°)'."
             robot.send user, msg
 
-
-
   robot.logger.info "Initializing CronJob... #{user.room}"
   require('time')
   CronJob = require('cron').CronJob
   tz = 'Asia/Seoul'
-  room = 'general'
   #new CronJob('0 */5 * * * *', everyFiveMinutes, null, true, tz)
   new CronJob('0 10 11 * * 1-5', workdaysLunch, null, true, tz)
   new CronJob('0 0 18 * * 1-5', workdaysQuit, null, true, tz)
