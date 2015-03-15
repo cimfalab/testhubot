@@ -10,28 +10,43 @@
 
 module.exports = (robot) ->
 
+  user = {}
+  user.room = process.env.HUBOT_DEPLOY_ROOM
+  #user.user = 'mariah'
+  user.type = 'groupchat'
+
   everyFiveMinutes = ->
     robot.logger.info 'I will nag you every 5 minutes'
     #robot.messageRoom room, 'I will nag you every 5 minutes'
-    robot.send 'mariah', 'I will nag you every 5 minutes'
 
   workdaysLunch = ->
-    #robot.logger.info '#Hubot 알림# 곧 점심 시간입니다. 챙겨야 할 것: 식권, 자기 방과 옆 방의 동료'
-    user = {}
-    #user.room = process.env.HUBOT_DEPLOY_ROOM
-    user.user = 'mariah'
-    user.type = 'chat'
-    robot.send user, '#Hubot 알림# 곧 점심 시간입니다. 챙겨야 할 것: 식권, 자기 방과 옆 방의 동료'
+    msg = '#Hubot 알림# 곧 점심 시간입니다. 챙겨야 할 것: 식권, 자기 방과 옆 방의 동료'
+    #robot.logger.info msg
+    robot.send user, msg
 
-  robot.logger.info 'Initializing CronJob...'
+  workdaysQuit = ->
+    robot.http('http://weather.service.msn.com/data.aspx?weadegreetype=C&culture=ko-KR&weasearchstr=%EC%88%98%EB%82%B4')
+        .header('Accept', 'application/xml')
+        .get() (err, res, body) ->
+          parseString = require('xml2js').parseString
+          parseString body, (err, result) ->
+            weather = result.weatherdata.weather[0]
+            current = weather.current[0].$
+            tomorrow = weather.forecast[1].$
+            # The latter type of string interpolation only works when you use double quotes.
+            msg = "#Hubot 알림# 하루 업무를 마무리할 시간이네요. 현재 날씨 '#{current.skytext} (#{current.temperature}°)' / 내일 날씨 '#{tomorrow.skytextday} (#{tomorrow.high}° #{tomorrow.low}°)'."
+            robot.send user, msg
+
+
+
+  robot.logger.info "Initializing CronJob... #{user.room}"
   require('time')
   CronJob = require('cron').CronJob
   tz = 'Asia/Seoul'
   room = 'general'
-  #new CronJob('0 0 18 * * 1-5', workdaysSixPm, null, true, tz)
   #new CronJob('0 */5 * * * *', everyFiveMinutes, null, true, tz)
-  new CronJob('0 35 17 * * *', workdaysLunch, null, true, tz)
-  robot.logger.info 'CronJob initialized'
+  new CronJob('0 10 11 * * 1-5', workdaysLunch, null, true, tz)
+  new CronJob('0 0 18 * * 1-5', workdaysQuit, null, true, tz)
 
   robot.respond //i, (msg) ->
     msg.send "안녕하세요? Hubot입니다."

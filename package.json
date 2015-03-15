@@ -7,6 +7,7 @@
   "dependencies": {
     "cron": "^1.0.9",
     "hubot": "^2.11.2",
+    "hubot-calculator": ">= 0.4.0",
     "hubot-diagnostics": "0.0.1",
     "hubot-google-images": "^0.1.4",
     "hubot-google-translate": "^0.1.0",
@@ -21,7 +22,7 @@
     "hubot-slack": "^3.3.0",
     "hubot-youtube": "^0.1.2",
     "time": "^0.11.1",
-	"hubot-calculator": ">= 0.4.0"
+    "xml2js": "^0.4.5"
   },
   "engines": {
     "node": "0.10.x"
