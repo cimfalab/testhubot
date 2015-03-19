@@ -48,8 +48,25 @@ module.exports = (robot) ->
   robot.respond //i, (msg) ->
     msg.send "안녕하세요? Hubot입니다."
 
-  robot.hear /장소 : (.*) 회의실/i, (msg) ->
-    msg.send "#Hubot 캠페인# 회의는 간결하게, 회의 시간에는 적극적이고 겸손하게 자신의 의견을 얘기해 주세요~"
+  #robot.hear /장소 : (.*) 회의실/i, (msg) ->
+  #  msg.send "#Hubot 캠페인# 회의는 간결하게, 회의 시간에는 적극적이고 겸손하게 자신의 의견을 얘기해 주세요~"
+
+  # "#회의"라는 단어가 포함되어 있으면 해당 메시지에서 시간("yyyy.mm.dd hour:min" 포맷만 인식)을 추출해 알람으로 등록
+  robot.hear /#회의(.*)/i, (msg) ->
+    fullMsg = msg.message.rawText
+    beforeMin = 30
+    console.log fullMsg
+    time = fullMsg.match(/(\d{4}).(\d{1,2}).(\d{1,2})\s+\d{2}:\d{2}/)[0]
+    return "" if time is null or time is ""
+    cronDate = new Date(time)
+    cronDate.setMinutes cronDate.getMinutes() - beforeMin
+    CronJob = require("cron").CronJob
+    job = new CronJob(cronDate, ->
+      cronMsg = "#Hubot 알림# 회의 30분 전입니다.\n" + fullMsg
+      robot.send user, cronMsg
+      @stop()
+    , null, true, tz)
+    #msg.send "회의 알람이 등록되었습니다."
 
   # robot.hear /badger/i, (msg) ->
   #   msg.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"
