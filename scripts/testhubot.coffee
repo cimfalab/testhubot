@@ -15,6 +15,40 @@ module.exports = (robot) ->
   #user.user = 'mariah'
   user.type = 'groupchat'
 
+  ###
+  httpClient = robot.http('http://openapi.seoul.go.kr:8088/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/')
+  #httpClient = robot.http('http://127.0.0.1:8088/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/')
+    .header('Accept', 'application/json')
+    .header('Connection', 'keep-alive')
+  httpClient.get() (err, res, body) ->
+    robot.logger.info res.statusCode
+    robot.logger.info body
+  ###
+
+  ###
+  options = {
+    hostname: '127.0.0.1',
+    port: 8088,
+    path: '/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/',
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json'
+    }
+  }
+
+  req = require('http').request options, (res) ->
+    console.log 'STATUS: ' + res.statusCode
+    console.log 'HEADERS: ' + JSON.stringify(res.headers)
+    res.setEncoding('utf8')
+    res.on 'data', (chunk) ->
+      console.log 'BODY: ' + chunk
+
+  req.on 'error', (e) ->
+    console.log 'problem with request: ' + e.message
+
+  req.end()
+  ###
+
   everyFiveMinutes = ->
     robot.logger.info 'I will nag you every 5 minutes'
     #robot.messageRoom room, 'I will nag you every 5 minutes'
@@ -25,6 +59,32 @@ module.exports = (robot) ->
     robot.send user, msg
 
   workdaysQuit = ->
+    # 미세먼지
+    http = require 'http'
+    msgDust = ''
+    # 69757368647474613437446b50476d is API key
+    path = 'http://openapi.seoul.go.kr:8088/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/%EB%8F%99%EB%82%A8%EA%B6%8C'
+    http.get(path, (res) ->
+      body = ''
+      res.on 'data', (data) ->
+        body += data
+      res.on 'end', () ->
+        body = JSON.parse(body)
+        time = body.RealtimeCityAir.row[0].MSRDT
+        pm10 = body.RealtimeCityAir.row[0].PM10
+        pm25 = body.RealtimeCityAir.row[0].PM25
+        #o3 = body.RealtimeCityAir.row[0].O3
+        #no2 = body.RealtimeCityAir.row[0].NO2
+        #co = body.RealtimeCityAir.row[0].CO
+        #so2 = body.RealtimeCityAir.row[0].SO2
+        currentAir = body.RealtimeCityAir.row[0].IDEX_NM
+        currentAirValue = body.RealtimeCityAir.row[0].IDEX_MVL
+
+        #msgDust = "현재 공기상태 > #{currentAir}, 공기상태 평점 > #{currentAirValue}, 측정시간 > #{time}, 미세먼지(㎍/㎥)(pm10)값 > #{pm10}, 초미세먼지농도(㎍/㎥)(pm25)값 > #{pm25}, 오존 > #{o3}, 이산화질소 > #{no2}, 아황산가스 > #{so2}, 일산화탄소 > #{co}"
+        msgDust = "[#{time}] 현재 공기상태: #{currentAir} / 공기상태 평점: #{currentAirValue} / 미세먼지(㎍/㎥)(pm10)값: #{pm10} / 초미세먼지농도(㎍/㎥)(pm25)값: #{pm25}"
+    ).on 'error', (e) ->
+      console.log 'Got error: ' + e.message
+
     robot.http('http://weather.service.msn.com/data.aspx?weadegreetype=C&culture=ko-KR&weasearchstr=%EC%88%98%EB%82%B4')
         .header('Accept', 'application/xml')
         .get() (err, res, body) ->
@@ -34,7 +94,11 @@ module.exports = (robot) ->
             current = weather.current[0].$
             tomorrow = weather.forecast[1].$
             # The latter type of string interpolation only works when you use double quotes.
-            msg = "#Hubot 알림# 하루 업무를 마무리할 시간이네요. 현재 날씨 '#{current.skytext} (#{current.temperature}°)' / 내일 날씨 '#{tomorrow.skytextday} (#{tomorrow.high}° #{tomorrow.low}°)'."
+            msg = "#Hubot 알림# 하루 업무를 마무리할 시간이네요.\n" +
+                "[현재날씨] #{current.skytext} (#{current.temperature}°)\n" +
+                "[내일날씨] #{tomorrow.skytextday} (#{tomorrow.high}° #{tomorrow.low}°)\n" +
+                "[미세먼지] #{msgDust}"
+
             robot.send user, msg
 
   robot.logger.info "Initializing CronJob... #{user.room}"
