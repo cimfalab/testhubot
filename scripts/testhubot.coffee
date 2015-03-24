@@ -69,7 +69,8 @@ module.exports = (robot) ->
       res.on 'data', (data) ->
         body += data
       res.on 'end', () ->
-        body = JSON.parse(body)
+        try body = JSON.parse(body) catch e then console.log 'ERROR!!!', e
+
         time = body.RealtimeCityAir.row[0].MSRDT
         pm10 = body.RealtimeCityAir.row[0].PM10
         pm25 = body.RealtimeCityAir.row[0].PM25
@@ -82,10 +83,13 @@ module.exports = (robot) ->
 
         #msgDust = "현재 공기상태 > #{currentAir}, 공기상태 평점 > #{currentAirValue}, 측정시간 > #{time}, 미세먼지(㎍/㎥)(pm10)값 > #{pm10}, 초미세먼지농도(㎍/㎥)(pm25)값 > #{pm25}, 오존 > #{o3}, 이산화질소 > #{no2}, 아황산가스 > #{so2}, 일산화탄소 > #{co}"
         msgDust = "[#{time}] 현재 공기상태: #{currentAir} / 공기상태 평점: #{currentAirValue} / 미세먼지(㎍/㎥)(pm10)값: #{pm10} / 초미세먼지농도(㎍/㎥)(pm25)값: #{pm25}"
+
+        getWeather(msgDust);
     ).on 'error', (e) ->
       console.log 'Got error: ' + e.message
 
-    robot.http('http://weather.service.msn.com/data.aspx?weadegreetype=C&culture=ko-KR&weasearchstr=%EC%88%98%EB%82%B4')
+    getWeather = (msgDust) ->
+      robot.http('http://weather.service.msn.com/data.aspx?weadegreetype=C&culture=ko-KR&weasearchstr=%EC%88%98%EB%82%B4')
         .header('Accept', 'application/xml')
         .get() (err, res, body) ->
           parseString = require('xml2js').parseString
@@ -108,6 +112,8 @@ module.exports = (robot) ->
   #new CronJob('0 */5 * * * *', everyFiveMinutes, null, true, tz)
   new CronJob('0 10 11 * * 1-5', workdaysLunch, null, true, tz)
   new CronJob('0 0 18 * * 1-5', workdaysQuit, null, true, tz)
+
+  workdaysQuit()
 
   robot.respond //i, (msg) ->
     msg.send "안녕하세요? Hubot입니다."
