@@ -113,8 +113,6 @@ module.exports = (robot) ->
   new CronJob('0 10 11 * * 1-5', workdaysLunch, null, true, tz)
   new CronJob('0 0 18 * * 1-5', workdaysQuit, null, true, tz)
 
-  workdaysQuit()
-
   robot.respond //i, (msg) ->
     msg.send "안녕하세요? Hubot입니다."
 
