@@ -1,6 +1,9 @@
 # Description:
 #   Example scripts for you to examine and try out.
 #
+# Commands:
+#   hubot dust - Reply with dust condition guide
+#
 # Notes:
 #   They are commented out by default, because most of them are pretty silly and
 #   wouldn't be useful and amusing enough for day to day huboting.
@@ -54,11 +57,11 @@ module.exports = (robot) ->
       res.on 'data', (data) ->
         body += data
       res.on 'end', () ->
-        try body = JSON.parse(body) catch e then console.log 'ERROR!!!', e
+        try body = JSON.parse(body) catch e then console.log 'Got error when parsing: ' + e.message
 
         time = body.RealtimeCityAir.row[0].MSRDT
         pm10 = body.RealtimeCityAir.row[0].PM10
-        pm25 = body.RealtimeCityAir.row[0].PM25
+        #pm25 = body.RealtimeCityAir.row[0].PM25
         #o3 = body.RealtimeCityAir.row[0].O3
         #no2 = body.RealtimeCityAir.row[0].NO2
         #co = body.RealtimeCityAir.row[0].CO
@@ -67,7 +70,7 @@ module.exports = (robot) ->
         currentAirValue = body.RealtimeCityAir.row[0].IDEX_MVL
 
         #msgDust = "현재 공기상태 > #{currentAir}, 공기상태 평점 > #{currentAirValue}, 측정시간 > #{time}, 미세먼지(㎍/㎥)(pm10)값 > #{pm10}, 초미세먼지농도(㎍/㎥)(pm25)값 > #{pm25}, 오존 > #{o3}, 이산화질소 > #{no2}, 아황산가스 > #{so2}, 일산화탄소 > #{co}"
-        msgDust = "[#{time}] 현재 공기상태: #{currentAir} / 공기상태 평점: #{currentAirValue} / 미세먼지(㎍/㎥)(pm10)값: #{pm10} / 초미세먼지농도(㎍/㎥)(pm25)값: #{pm25}"
+        msgDust = "[#{time}] 현재 공기상태: #{currentAir} / 공기상태 평점: #{currentAirValue} / 미세먼지(㎍/㎥)(pm10)값: #{pm10}"
 
         getWeather(msgDust)
     ).on 'error', (e) ->
@@ -121,6 +124,17 @@ module.exports = (robot) ->
       @stop()
     , null, true, tz)
     #msg.send "회의 알람이 등록되었습니다."
+
+  robot.respond /(^|\s)dust(?=\s|$)/i, (msg) ->
+    #help send message
+    msg.reply "0 - 50  좋음  대기오염 관련 질환자군에서도 영향이 유발되지 않을 수준\n" +
+                "51 -100 보통  환자군에게 만성 노출시 경미한 영향이 유발될 수 있는 수준\n" +
+                "101-150 민감군영향   환자군 및 민감군에게 유해한 영향이 유발될 수 있는 수준\n" +
+                "151-200 나쁨  환자군 및 민감군(어린이, 노약자 등)에게 유해한 영향 유발, 일반인도 건강상 불쾌감을 경험할 수 있는 수준\n" +
+                "201-300 매우나쁨    환자군 및 민감군에게 급성 노출시 심각한 영향 유발, 일반인도 약한 영향이 유발될 수 있는 수준\n" +
+                "300+    위험  환자군 및 민감군에게 응급 조치가 발생되거나, 일반인에게 유해한 영향이 유발될 수 있는 수준\n" +
+                "참고: http://en.wikipedia.org/wiki/Air_quality_index#South_Korea"
+    return
 
   # robot.hear /badger/i, (msg) ->
   #   msg.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"
