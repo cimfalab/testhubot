@@ -45,6 +45,7 @@ module.exports = (robot) ->
     #path = 'http://openapi.seoul.go.kr:8088/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/%EB%8F%99%EB%82%A8%EA%B6%8C'
     options = {
       host: 'openapi.seoul.go.kr',
+      hostname: 'openapi.seoul.go.kr',
       port: 8088,
       path: '/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/%EB%8F%99%EB%82%A8%EA%B6%8C',
       method: 'GET',
@@ -74,7 +75,7 @@ module.exports = (robot) ->
 
         getWeather(msgDust)
     ).on 'error', (e) ->
-      console.log 'Got error: ' + e.message
+      console.log 'Got error: ' + e.message, options
       getWeather(e.message)
 
     getWeather = (msgDust) ->
