@@ -127,7 +127,7 @@ module.exports = (robot) ->
 
   robot.respond /(^|\s)dust(?=\s|$)/i, (msg) ->
     #help send message
-    msg.reply "Air quality index\n" +
+    msg.send "Air quality index\n" +
                 "0 - 50  좋음  대기오염 관련 질환자군에서도 영향이 유발되지 않을 수준\n" +
                 "51 -100 보통  환자군에게 만성 노출시 경미한 영향이 유발될 수 있는 수준\n" +
                 "101-150 민감군영향   환자군 및 민감군에게 유해한 영향이 유발될 수 있는 수준\n" +
