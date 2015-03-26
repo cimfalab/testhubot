@@ -25,30 +25,6 @@ module.exports = (robot) ->
     robot.logger.info body
   ###
 
-  ###
-  options = {
-    hostname: '127.0.0.1',
-    port: 8088,
-    path: '/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/',
-    method: 'GET',
-    headers: {
-      'Accept': 'application/json'
-    }
-  }
-
-  req = require('http').request options, (res) ->
-    console.log 'STATUS: ' + res.statusCode
-    console.log 'HEADERS: ' + JSON.stringify(res.headers)
-    res.setEncoding('utf8')
-    res.on 'data', (chunk) ->
-      console.log 'BODY: ' + chunk
-
-  req.on 'error', (e) ->
-    console.log 'problem with request: ' + e.message
-
-  req.end()
-  ###
-
   everyFiveMinutes = ->
     robot.logger.info 'I will nag you every 5 minutes'
     #robot.messageRoom room, 'I will nag you every 5 minutes'
@@ -63,8 +39,17 @@ module.exports = (robot) ->
     http = require 'http'
     msgDust = ''
     # 69757368647474613437446b50476d is API key
-    path = 'http://openapi.seoul.go.kr:8088/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/%EB%8F%99%EB%82%A8%EA%B6%8C'
-    http.get(path, (res) ->
+    #path = 'http://openapi.seoul.go.kr:8088/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/%EB%8F%99%EB%82%A8%EA%B6%8C'
+    options = {
+      host: 'openapi.seoul.go.kr',
+      port: 8088,
+      path: '/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/%EB%8F%99%EB%82%A8%EA%B6%8C',
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
+    }
+    http.get(options, (res) ->
       body = ''
       res.on 'data', (data) ->
         body += data
