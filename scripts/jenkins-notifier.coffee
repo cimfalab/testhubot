@@ -38,7 +38,6 @@ buildStatusChanged = (data, @failing) ->
   console.log "this should not happen"
 
 shouldNotify = (notstrat, data, @failing) ->
-  console.log 'shouldNotify', data.build.status, notstrat, @failing
   if data.build.status == 'FAILURE'
     if /F/.test(notstrat)
       return true
@@ -56,7 +55,7 @@ module.exports = (robot) ->
 
     @failing ||= []
     query = querystring.parse(url.parse(req.url).query)
-    console.log "Got notification: " + query
+    console.log "Got notification: " + req.body
 
     res.end('')
 
