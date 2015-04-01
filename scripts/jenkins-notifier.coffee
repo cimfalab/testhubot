@@ -55,7 +55,7 @@ module.exports = (robot) ->
 
     @failing ||= []
     query = querystring.parse(url.parse(req.url).query)
-    console.log "Got notification: " + req.body
+    console.log "Got notification: ", req.body
 
     res.end('')
 
@@ -82,7 +82,7 @@ module.exports = (robot) ->
           else
             build = "succeeded"
           console.log "send", shouldNotify(envelope.notstrat, data, @failing)
-          robot.send envelope, "#{data.name} build ##{data.build.number} #{build} (#{encodeURI(data.build.full_url)})"  if shouldNotify(envelope.notstrat, data, @failing)
+          #robot.send envelope, "#{data.name} build ##{data.build.number} #{build} (#{encodeURI(data.build.full_url)})"  if shouldNotify(envelope.notstrat, data, @failing)
           index = @failing.indexOf data.name
           @failing.splice index, 1 if index isnt -1
           console.log "sent"
