@@ -81,8 +81,8 @@ module.exports = (robot) ->
             build = "was restored"
           else
             build = "succeeded"
-          console.log "send", shouldNotify(envelope.notstrat, data, @failing)
-          #robot.send envelope, "#{data.name} build ##{data.build.number} #{build} (#{encodeURI(data.build.full_url)})"  if shouldNotify(envelope.notstrat, data, @failing)
+          console.log "send #{encodeURI(data.build.url)}"
+          #robot.send envelope, "#{data.name} build ##{data.build.number} #{build} (#{encodeURI(data.build.url)})"  if shouldNotify(envelope.notstrat, data, @failing)
           index = @failing.indexOf data.name
           @failing.splice index, 1 if index isnt -1
           console.log "sent"
