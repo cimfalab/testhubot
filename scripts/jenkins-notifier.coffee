@@ -61,13 +61,15 @@ module.exports = (robot) ->
 
     envelope = {notstrat:"Fs"}
     envelope.room = query.room if query.room
-    envelope.notstrat = query.notstrat if query.notstrat 
+    envelope.notstrat = query.notstrat if query.notstrat
+    console.log "envelope", envelope
     if query.type
       envelope.user = {type: query.type}
 
     try
       data = req.body
 
+      console.log "data.build", data.build
       if data.build.phase == 'FINISHED' or data.build.phase == 'FINALIZED'
         if data.build.status == 'FAILURE'
           if data.name in @failing
