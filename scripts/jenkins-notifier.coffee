@@ -38,6 +38,7 @@ buildStatusChanged = (data, @failing) ->
   console.log "this should not happen"
 
 shouldNotify = (notstrat, data, @failing) ->
+  console.log 'shouldNotify', data.build.status, notstrat, @failing
   if data.build.status == 'FAILURE'
     if /F/.test(notstrat)
       return true
