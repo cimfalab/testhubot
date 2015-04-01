@@ -50,6 +50,7 @@ shouldNotify = (notstrat, data, @failing) ->
 
 module.exports = (robot) ->
 
+  console.log "Initializing jenkins-notifier..."
   robot.router.post "/hubot/jenkins-notify", (req, res) ->
 
     @failing ||= []
