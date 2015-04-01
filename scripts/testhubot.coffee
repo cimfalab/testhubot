@@ -43,6 +43,7 @@ module.exports = (robot) ->
     msgDust = ''
     # 69757368647474613437446b50476d is API key
     #path = 'http://openapi.seoul.go.kr:8088/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/%EB%8F%99%EB%82%A8%EA%B6%8C'
+    #path = 'http://115.84.165.45:8088/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/%EB%8F%99%EB%82%A8%EA%B6%8C'
     options = {
       host: 'openapi.seoul.go.kr',
       hostname: 'openapi.seoul.go.kr',
@@ -62,7 +63,7 @@ module.exports = (robot) ->
 
         time = body.RealtimeCityAir.row[0].MSRDT
         pm10 = body.RealtimeCityAir.row[0].PM10
-        #pm25 = body.RealtimeCityAir.row[0].PM25
+        pm25 = body.RealtimeCityAir.row[0].PM25
         #o3 = body.RealtimeCityAir.row[0].O3
         #no2 = body.RealtimeCityAir.row[0].NO2
         #co = body.RealtimeCityAir.row[0].CO
@@ -71,7 +72,7 @@ module.exports = (robot) ->
         currentAirValue = body.RealtimeCityAir.row[0].IDEX_MVL
 
         #msgDust = "현재 공기상태 > #{currentAir}, 공기상태 평점 > #{currentAirValue}, 측정시간 > #{time}, 미세먼지(㎍/㎥)(pm10)값 > #{pm10}, 초미세먼지농도(㎍/㎥)(pm25)값 > #{pm25}, 오존 > #{o3}, 이산화질소 > #{no2}, 아황산가스 > #{so2}, 일산화탄소 > #{co}"
-        msgDust = "[#{time}] 현재 공기상태: #{currentAir} / 공기상태 평점: #{currentAirValue} / 미세먼지(㎍/㎥)(pm10)값: #{pm10}"
+        msgDust = "[#{time}] 현재 공기상태: #{currentAir} / 공기상태 평점: #{currentAirValue} / 미세먼지(㎍/㎥)(pm10)값: #{pm10} / 초미세먼지농도(㎍/㎥)(pm25)값: #{pm25}"
 
         getWeather(msgDust)
     ).on 'error', (e) ->
