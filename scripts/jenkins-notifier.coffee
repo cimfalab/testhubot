@@ -61,15 +61,13 @@ module.exports = (robot) ->
 
     envelope = {notstrat:"Fs"}
     envelope.room = query.room if query.room
-    envelope.notstrat = query.notstrat if query.notstrat
-    console.log "envelope", envelope
+    envelope.notstrat = query.notstrat if query.notstrat 
     if query.type
       envelope.user = {type: query.type}
 
     try
       data = req.body
 
-      console.log "data.build", data.build
       if data.build.phase == 'FINISHED' or data.build.phase == 'FINALIZED'
         if data.build.status == 'FAILURE'
           if data.name in @failing
@@ -83,9 +81,11 @@ module.exports = (robot) ->
             build = "was restored"
           else
             build = "succeeded"
+          console.log "send", shouldNotify(envelope.notstrat, data, @failing)
           robot.send envelope, "#{data.name} build ##{data.build.number} #{build} (#{encodeURI(data.build.full_url)})"  if shouldNotify(envelope.notstrat, data, @failing)
           index = @failing.indexOf data.name
           @failing.splice index, 1 if index isnt -1
+          console.log "sent"
 
     catch error
       console.log "jenkins-notify error: #{error}. Data: #{req.body}"
