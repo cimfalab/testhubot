@@ -82,7 +82,10 @@ module.exports = (robot) ->
             build = "succeeded"
           console.log "send"
           #robot.send envelope, "#{data.name} build ##{data.build.number} #{build} (#{encodeURI(data.build.full_url)})"  if shouldNotify(envelope.notstrat, data, @failing)
-          robot.send envelope, "#{data.name} build ##{data.build.number} #{build} (http://ci.dev.wsdk.io/#{data.build.url})"  if shouldNotify(envelope.notstrat, data, @failing)
+          scm = ""
+          if data.build.scm
+            scm = "\nbranch: #{data.build.scm.branch}, commit #{data.build.scm.commit}"
+          robot.send envelope, "#{data.name} build ##{data.build.number} #{build} (http://ci.dev.wsdk.io/#{data.build.url})#{scm}"  if shouldNotify(envelope.notstrat, data, @failing)
           index = @failing.indexOf data.name
           @failing.splice index, 1 if index isnt -1
           console.log "sent"
