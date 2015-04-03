@@ -68,12 +68,16 @@ module.exports = (robot) ->
       data = req.body
 
       if data.build.phase == 'FINISHED' or data.build.phase == 'FINALIZED'
+        scm = ""
+        if data.build.scm
+          scm = "\nbranch: #{data.build.scm.branch}, commit #{data.build.scm.commit}"
+        buildUrl = "http://ci.dev.wsdk.io/#{data.build.url}"
         if data.build.status == 'FAILURE'
           if data.name in @failing
             build = "is still"
           else
             build = "started"
-          robot.send envelope, "#{data.name} build ##{data.build.number} #{build} failing (#{encodeURI(data.build.full_url)})" if shouldNotify(envelope.notstrat, data, @failing)
+          robot.send envelope, "\"#{data.name}\" build ##{data.build.number} #{build} failing (#{buildUrl})#{scm}" if shouldNotify(envelope.notstrat, data, @failing)
           @failing.push data.name unless data.name in @failing
         if data.build.status == 'SUCCESS'
           if data.name in @failing
@@ -82,10 +86,7 @@ module.exports = (robot) ->
             build = "succeeded"
           console.log "send"
           #robot.send envelope, "#{data.name} build ##{data.build.number} #{build} (#{encodeURI(data.build.full_url)})"  if shouldNotify(envelope.notstrat, data, @failing)
-          scm = ""
-          if data.build.scm
-            scm = "\nbranch: #{data.build.scm.branch}, commit #{data.build.scm.commit}"
-          robot.send envelope, "#{data.name} build ##{data.build.number} #{build} (http://ci.dev.wsdk.io/#{data.build.url})#{scm}"  if shouldNotify(envelope.notstrat, data, @failing)
+          robot.send envelope, "\"#{data.name}\" build ##{data.build.number} #{build} (#{buildUrl})#{scm}"  if shouldNotify(envelope.notstrat, data, @failing)
           index = @failing.indexOf data.name
           @failing.splice index, 1 if index isnt -1
           console.log "sent"
