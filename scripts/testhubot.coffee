@@ -97,7 +97,7 @@ module.exports = (robot) ->
             robot.send user, msg
 
   workdaysScrum = ->
-    msg = '#Hubot 알림# 10분 뒤 Daily Scrum 시작입니다. 각자 현황판 업데이트 후 정시에 체크인해 주세요.'
+    msg = '#Hubot 알림# 10분 뒤 Daily Scrum 시작(수요일은 오후 1시)입니다. 각자 현황판 업데이트 후 정시에 체크인해 주세요.'
     robot.send user, msg
 
   robot.logger.info "Initializing CronJob... #{user.room}"
