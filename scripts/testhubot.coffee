@@ -96,13 +96,18 @@ module.exports = (robot) ->
 
             robot.send user, msg
 
+  workdaysScrum = ->
+    msg = '#Hubot 알림# 10분 뒤 Daily Scrum 시작입니다. 각자 현황판 업데이트 후 정시에 체크인해 주세요.'
+    robot.send user, msg
+
   robot.logger.info "Initializing CronJob... #{user.room}"
   require('time')
   CronJob = require('cron').CronJob
   tz = 'Asia/Seoul'
   #new CronJob('0 */5 * * * *', everyFiveMinutes, null, true, tz)
-  new CronJob('0 10 11 * * 1-5', workdaysLunch, null, true, tz)
+  new CronJob('0 15 11 * * 1-5', workdaysLunch, null, true, tz)
   new CronJob('0 0 18 * * 1-5', workdaysQuit, null, true, tz)
+  new CronJob('0 20 10 * * 1-5', workdaysScrum, null, true, tz)
 
   robot.respond //i, (msg) ->
     msg.send "안녕하세요? Hubot입니다."
