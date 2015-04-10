@@ -83,21 +83,24 @@ module.exports = (robot) ->
       robot.http('http://weather.service.msn.com/data.aspx?weadegreetype=C&culture=ko-KR&weasearchstr=%EC%88%98%EB%82%B4')
         .header('Accept', 'application/xml')
         .get() (err, res, body) ->
+          msg = "#Hubot 알림# 하루 업무를 마무리할 시간이네요.\n"
           parseString = require('xml2js').parseString
           parseString body, (err, result) ->
-            weather = result.weatherdata.weather[0]
-            current = weather.current[0].$
-            tomorrow = weather.forecast[1].$
-            # The latter type of string interpolation only works when you use double quotes.
-            msg = "#Hubot 알림# 하루 업무를 마무리할 시간이네요.\n" +
-                "[현재날씨] #{current.skytext} (#{current.temperature}°)\n" +
-                "[내일날씨] #{tomorrow.skytextday} (#{tomorrow.high}° #{tomorrow.low}°)\n" +
-                "[미세먼지] #{msgDust}"
-
-            robot.send user, msg
+            try
+              weather = result.weatherdata.weather[0]
+              current = weather.current[0].$
+              tomorrow = weather.forecast[1].$
+              # The latter type of string interpolation only works when you use double quotes.
+              msg = msg +
+                  "[현재날씨] #{current.skytext} (#{current.temperature}°)\n" +
+                  "[내일날씨] #{tomorrow.skytextday} (#{tomorrow.high}° #{tomorrow.low}°)\n"
+            finally
+              msg = msg +
+                  "[미세먼지] #{msgDust}"
+              robot.send user, msg
 
   workdaysScrum = ->
-    msg = '#Hubot 알림# 10분 뒤 Daily Scrum 시작(수요일은 오후 1시)입니다. 각자 현황판 업데이트 후 정시에 체크인해 주세요.'
+    msg = '#Hubot 알림# 10분 뒤 Daily Scrum 시작(11-2 회의실)입니다. 각자 현황판 업데이트 후 정시에 체크인해 주세요.'
     robot.send user, msg
 
   robot.logger.info "Initializing CronJob... #{user.room}"
