@@ -3,6 +3,7 @@
 #
 # Commands:
 #   hubot dust - Reply with dust condition guide
+#   hubot weather - Reply with weather information about today and tomorrow
 #
 # Notes:
 #   They are commented out by default, because most of them are pretty silly and
@@ -72,14 +73,14 @@ module.exports = (robot) ->
         currentAirValue = body.RealtimeCityAir.row[0].IDEX_MVL
 
         #msgDust = "현재 공기상태 > #{currentAir}, 공기상태 평점 > #{currentAirValue}, 측정시간 > #{time}, 미세먼지(㎍/㎥)(pm10)값 > #{pm10}, 초미세먼지농도(㎍/㎥)(pm25)값 > #{pm25}, 오존 > #{o3}, 이산화질소 > #{no2}, 아황산가스 > #{so2}, 일산화탄소 > #{co}"
-        msgDust = "[#{time}] 현재 공기상태: #{currentAir} / 공기상태 평점: #{currentAirValue} / 미세먼지(㎍/㎥)(pm10)값: #{pm10} / 초미세먼지농도(㎍/㎥)(pm25)값: #{pm25}"
+        msgDust = "현재 공기상태: #{currentAir} / 공기상태 평점: #{currentAirValue} / 미세먼지(㎍/㎥)(pm10)값: #{pm10} / 초미세먼지농도(㎍/㎥)(pm25)값: #{pm25}"
 
-        getWeather(msgDust)
+        getWeatherByPlanet(msgDust)
     ).on 'error', (e) ->
       console.log 'Got error: ' + e.message, options
-      getWeather(e.message)
+      getWeatherByPlanet(e.message)
 
-    getWeather = (msgDust) ->
+    getWeatherByMSN = (msgDust) ->
       robot.http('http://weather.service.msn.com/data.aspx?weadegreetype=C&culture=ko-KR&weasearchstr=%EC%88%98%EB%82%B4')
         .header('Accept', 'application/xml')
         .get() (err, res, body) ->
@@ -98,6 +99,27 @@ module.exports = (robot) ->
               msg = msg +
                   "[미세먼지] #{msgDust}"
               robot.send user, msg
+
+  getWeatherByPlanet = (msgDust) ->
+    robot.http('http://apis.skplanetx.com/weather/forecast/3days?version=1&lat=37.3713180&lon=127.1223530&foretxt=Y')
+    #robot.http('http://apis.skplanetx.com/weather/forecast/3days?version=1&city=경기&county=성남시 분당구&village=수내&foretxt=Y')
+      .header('appKey', '4bc92446-d191-39a5-936b-0e73f2c64fa5')
+      .header('Accept', 'application/json')
+      .get() (err, res, body) ->
+        msg = "#Hubot 알림# 하루 업무를 마무리할 시간이네요.\n"
+        parseString = JSON.parse(body)
+        try
+          if parseString.result.code is 9200
+            weather = parseString.weather.forecast3days[0]
+            current = weather.fcstext.text1
+            tomorrow = weather.fcstext.text2
+            msg = msg +
+                "[기상개황(오늘)] #{current}\n\n" +
+                "[기상개황(내일)] #{tomorrow}\n\n"
+        finally
+          msg = msg +
+              "[미세먼지] #{msgDust}"
+          robot.send user, msg
 
   workdaysScrum = ->
     msg = '#Hubot 알림# 10분 뒤 Daily Scrum 시작(11-2 회의실)입니다. 각자 현황판 업데이트 후 정시에 체크인해 주세요.'
@@ -145,6 +167,10 @@ module.exports = (robot) ->
                 "201-300 매우나쁨    환자군 및 민감군에게 급성 노출시 심각한 영향 유발, 일반인도 약한 영향이 유발될 수 있는 수준\n" +
                 "300+    위험  환자군 및 민감군에게 응급 조치가 발생되거나, 일반인에게 유해한 영향이 유발될 수 있는 수준\n" +
                 "참고: http://en.wikipedia.org/wiki/Air_quality_index#South_Korea"
+    return
+
+  robot.respond /(^|\s)weather(?=\s|$)/i, (msg) ->
+    getWeatherByPlanet('')
     return
 
   # robot.hear /badger/i, (msg) ->
