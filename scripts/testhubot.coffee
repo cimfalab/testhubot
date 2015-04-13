@@ -55,6 +55,10 @@ module.exports = (robot) ->
         'Accept': 'application/json'
       }
     }
+
+    callback = (text) ->
+      robot.send user, text
+
     http.get(options, (res) ->
       body = ''
       res.on 'data', (data) ->
@@ -75,10 +79,10 @@ module.exports = (robot) ->
         #msgDust = "현재 공기상태 > #{currentAir}, 공기상태 평점 > #{currentAirValue}, 측정시간 > #{time}, 미세먼지(㎍/㎥)(pm10)값 > #{pm10}, 초미세먼지농도(㎍/㎥)(pm25)값 > #{pm25}, 오존 > #{o3}, 이산화질소 > #{no2}, 아황산가스 > #{so2}, 일산화탄소 > #{co}"
         msgDust = "현재 공기상태: #{currentAir} / 공기상태 평점: #{currentAirValue} / 미세먼지(㎍/㎥)(pm10)값: #{pm10} / 초미세먼지농도(㎍/㎥)(pm25)값: #{pm25}"
 
-        getWeatherByPlanet(msgDust)
+        getWeatherByPlanet msgDust, callback
     ).on 'error', (e) ->
       console.log 'Got error: ' + e.message, options
-      getWeatherByPlanet(e.message)
+      getWeatherByPlanet e.message, callback
 
     getWeatherByMSN = (msgDust) ->
       robot.http('http://weather.service.msn.com/data.aspx?weadegreetype=C&culture=ko-KR&weasearchstr=%EC%88%98%EB%82%B4')
@@ -100,7 +104,7 @@ module.exports = (robot) ->
                   "[미세먼지] #{msgDust}"
               robot.send user, msg
 
-  getWeatherByPlanet = (msgDust) ->
+  getWeatherByPlanet = (msgDust, callback) ->
     robot.http('http://apis.skplanetx.com/weather/forecast/3days?version=1&lat=37.3713180&lon=127.1223530&foretxt=Y')
     #robot.http('http://apis.skplanetx.com/weather/forecast/3days?version=1&city=경기&county=성남시 분당구&village=수내&foretxt=Y')
       .header('appKey', '4bc92446-d191-39a5-936b-0e73f2c64fa5')
@@ -119,7 +123,7 @@ module.exports = (robot) ->
         finally
           msg = msg +
               "[미세먼지] #{msgDust}"
-          robot.send user, msg
+          callback msg
 
   workdaysScrum = ->
     msg = '#Hubot 알림# 10분 뒤 Daily Scrum 시작(11-2 회의실)입니다. 각자 현황판 업데이트 후 정시에 체크인해 주세요.'
@@ -170,7 +174,8 @@ module.exports = (robot) ->
     return
 
   robot.respond /(^|\s)weather(?=\s|$)/i, (msg) ->
-    getWeatherByPlanet('')
+    getWeatherByPlanet '', (text) ->
+      msg.send text
     return
 
   # robot.hear /badger/i, (msg) ->
