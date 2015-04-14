@@ -119,8 +119,8 @@ module.exports = (robot) ->
             current = weather.fcstext.text1
             tomorrow = weather.fcstext.text2
             msg = msg +
-                "[기상개황(오늘)] #{current}\n\n" +
-                "[기상개황(내일)] #{tomorrow}\n"
+                "[기상개황(오늘)]\n#{current}\n\n" +
+                "[기상개황(내일)]\n#{tomorrow}\n"
         finally
           callback msg
 
