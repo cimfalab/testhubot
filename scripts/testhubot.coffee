@@ -57,7 +57,8 @@ module.exports = (robot) ->
     }
 
     callback = (text) ->
-      robot.send user, text
+      msg = "#Hubot 알림# 하루 업무를 마무리할 시간이네요.\n" + text
+      robot.send user, msg
 
     http.get(options, (res) ->
       body = ''
@@ -104,13 +105,13 @@ module.exports = (robot) ->
                   "[미세먼지] #{msgDust}"
               robot.send user, msg
 
-  getWeatherByPlanet = (msgDust, callback) ->
+  getVerboseWeatherByPlanet = (msgDust, callback) ->
     robot.http('http://apis.skplanetx.com/weather/forecast/3days?version=1&lat=37.3713180&lon=127.1223530&foretxt=Y')
     #robot.http('http://apis.skplanetx.com/weather/forecast/3days?version=1&city=경기&county=성남시 분당구&village=수내&foretxt=Y')
       .header('appKey', '4bc92446-d191-39a5-936b-0e73f2c64fa5')
       .header('Accept', 'application/json')
       .get() (err, res, body) ->
-        msg = "#Hubot 알림# 하루 업무를 마무리할 시간이네요.\n"
+        msg = ""
         parseString = JSON.parse(body)
         try
           if parseString.result.code is 9200
@@ -119,7 +120,23 @@ module.exports = (robot) ->
             tomorrow = weather.fcstext.text2
             msg = msg +
                 "[기상개황(오늘)] #{current}\n\n" +
-                "[기상개황(내일)] #{tomorrow}\n\n"
+                "[기상개황(내일)] #{tomorrow}\n"
+        finally
+          callback msg
+
+  getWeatherByPlanet = (msgDust, callback) ->
+    robot.http('http://apis.skplanetx.com/weather/current/hourly?version=1&lat=37.3713180&lon=127.1223530')
+      .header('appKey', '4bc92446-d191-39a5-936b-0e73f2c64fa5')
+      .header('Accept', 'application/json')
+      .get() (err, res, body) ->
+        msg = ""
+        parseString = JSON.parse(body)
+        try
+          if parseString.result.code is 9200
+            current = parseString.weather.hourly[0]
+            msg = msg +
+                "[현재날씨] #{current.sky.name} (#{current.temperature.tc}°)\n" +
+                "[내일날씨] wsdkbot에게 물어보세요~ (/dm @wsdkbot weather)\n"
         finally
           msg = msg +
               "[미세먼지] #{msgDust}"
@@ -174,7 +191,7 @@ module.exports = (robot) ->
     return
 
   robot.respond /(^|\s)weather(?=\s|$)/i, (msg) ->
-    getWeatherByPlanet '', (text) ->
+    getVerboseWeatherByPlanet '', (text) ->
       msg.send text
     return
 

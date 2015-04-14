@@ -95,3 +95,18 @@ module.exports = (robot) ->
       console.log "jenkins-notify error: #{error}. Data: #{req.body}"
       console.log error.stack
 
+  getChanges = () ->
+    console.log 'Connecting ci...'
+    robot.http('http://ci.dev.wsdk.io/job/dev.wsdk.io%20ide/19/api/json?pretty=true')
+      .header('Accept', 'application/json')
+      .get() (err, res, body) ->
+        if err
+          console.log 'Got error: ' + err.message
+          return
+
+        msg = ""
+        parseString = JSON.parse(body)
+        try
+          console.log parseString
+        finally
+          console.log 1
