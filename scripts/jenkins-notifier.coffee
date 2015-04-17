@@ -75,21 +75,22 @@ module.exports = (robot) ->
         buildUrl = "http://ci.dev.wsdk.io/#{data.build.url}"
         if data.build.status == 'FAILURE'
           if data.name in @failing
-            build = "is still"
+            build = "여전히" # "is still"
           else
-            build = "started"
+            build = "시작" # "started"
+          console.log "\"#{data.name}\" build ##{data.build.number} #{build} failing (#{buildUrl})#{scm}" if shouldNotify(envelope.notstrat, data, @failing)
           #robot.send envelope, "\"#{data.name}\" build ##{data.build.number} #{build} failing (#{buildUrl})#{scm}" if shouldNotify(envelope.notstrat, data, @failing)
           @failing.push data.name unless data.name in @failing
         if data.build.status == 'SUCCESS'
           if data.name in @failing
-            build = "was restored"
+            build = "복구" # "was restored"
           else
-            build = "succeeded"
+            build = "성공" # "succeeded"
           console.log "send"
+          console.log "\"#{data.name}\" build ##{data.build.number} #{build} (#{buildUrl})#{scm}"  if shouldNotify(envelope.notstrat, data, @failing)
           #robot.send envelope, "\"#{data.name}\" build ##{data.build.number} #{build} (#{buildUrl})#{scm}"  if shouldNotify(envelope.notstrat, data, @failing)
           index = @failing.indexOf data.name
           @failing.splice index, 1 if index isnt -1
-          console.log "sent"
 
     catch error
       console.log "jenkins-notify error: #{error}. Data: #{req.body}"

@@ -1,0 +1,16 @@
+{
+  "name": "bridge",
+  "version": "0.0.0",
+  "private": true,
+  "author": "Kim Kangho <cimfalab@gmail.com>",
+  "description": "Hack a bot",
+  "dependencies": {
+    "express": "^4.12.3",
+    "request": "^2.55.0"
+  },
+  "engines": {
+    "node": "0.10.x"
+  },
+  "devDependencies": {
+  }
+}
