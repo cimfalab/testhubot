@@ -71,7 +71,7 @@ module.exports = (robot) ->
       if data.build.phase == 'FINISHED' or data.build.phase == 'FINALIZED'
         scm = ""
         if data.build.scm
-          scm = "\n  [branch] #{data.build.scm.branch}\n  [commitId] #{data.build.scm.commit}\n  [change]\n#{data.build.scm.changes}\n  [affectedPaths]\n#{data.build.scm.affectedPaths}"
+          scm = "\n  [branch] #{data.build.scm.branch}\n  [commitId] #{data.build.scm.commit}\n  [change]\n#{data.build.scm.changes}\n  [affectedPaths]\n#{data.build.scm.affected_paths}"
         buildUrl = "http://ci.dev.wsdk.io/#{data.build.url}"
         if data.build.status == 'FAILURE'
           if data.name in @failing
