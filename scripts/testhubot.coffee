@@ -19,22 +19,8 @@ module.exports = (robot) ->
   #user.user = 'mariah'
   user.type = 'groupchat'
 
-  ###
-  httpClient = robot.http('http://openapi.seoul.go.kr:8088/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/')
-  #httpClient = robot.http('http://127.0.0.1:8088/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/')
-    .header('Accept', 'application/json')
-    .header('Connection', 'keep-alive')
-  httpClient.get() (err, res, body) ->
-    robot.logger.info res.statusCode
-    robot.logger.info body
-  ###
-
-  everyFiveMinutes = ->
-    robot.logger.info 'I will nag you every 5 minutes'
-    #robot.messageRoom room, 'I will nag you every 5 minutes'
-
   workdaysLunch = ->
-    msg = '#Hubot 알림# 곧 점심 시간입니다. 챙겨야 할 것: 식권, 자기 방과 옆 방의 동료'
+    msg = '#Hubot 알림# 곧 점심 시간입니다. 챙겨야 할 것: 식권, 자기 방과 옆 방의 동료, 비더레^^'
     #robot.logger.info msg
     robot.send user, msg
 
@@ -46,6 +32,7 @@ module.exports = (robot) ->
     #path = 'http://openapi.seoul.go.kr:8088/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/%EB%8F%99%EB%82%A8%EA%B6%8C'
     #path = 'http://115.84.165.45:8088/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/%EB%8F%99%EB%82%A8%EA%B6%8C'
     options = {
+      agent: agent,
       host: 'openapi.seoul.go.kr',
       hostname: 'openapi.seoul.go.kr',
       port: 8088,
@@ -85,34 +72,23 @@ module.exports = (robot) ->
       console.log 'Got error: ' + e.message, options
       getWeatherByPlanet e.message, callback
 
-    getWeatherByMSN = (msgDust) ->
-      robot.http('http://weather.service.msn.com/data.aspx?weadegreetype=C&culture=ko-KR&weasearchstr=%EC%88%98%EB%82%B4')
-        .header('Accept', 'application/xml')
-        .get() (err, res, body) ->
-          msg = "#Hubot 알림# 하루 업무를 마무리할 시간이네요.\n"
-          parseString = require('xml2js').parseString
-          parseString body, (err, result) ->
-            try
-              weather = result.weatherdata.weather[0]
-              current = weather.current[0].$
-              tomorrow = weather.forecast[1].$
-              # The latter type of string interpolation only works when you use double quotes.
-              msg = msg +
-                  "[현재날씨] #{current.skytext} (#{current.temperature}°)\n" +
-                  "[내일날씨] #{tomorrow.skytextday} (#{tomorrow.high}° #{tomorrow.low}°)\n"
-            finally
-              msg = msg +
-                  "[미세먼지] #{msgDust}"
-              robot.send user, msg
-
   getVerboseWeatherByPlanet = (msgDust, callback) ->
-    robot.http('http://apis.skplanetx.com/weather/forecast/3days?version=1&lat=37.3713180&lon=127.1223530&foretxt=Y')
+    console.log 'getVerboseWeatherByPlanet'
+    options = {
+      agent: agent
+    }
+    robot.http('http://apis.skplanetx.com/weather/forecast/3days?version=1&lat=37.3713180&lon=127.1223530&foretxt=Y', options)
     #robot.http('http://apis.skplanetx.com/weather/forecast/3days?version=1&city=경기&county=성남시 분당구&village=수내&foretxt=Y')
       .header('appKey', '4bc92446-d191-39a5-936b-0e73f2c64fa5')
       .header('Accept', 'application/json')
       .get() (err, res, body) ->
+        if err
+          res.send "Encountered an error :( #{err}"
+          return
+
         msg = ""
         parseString = JSON.parse(body)
+        console.log parseString
         try
           if parseString.result.code is 9200
             weather = parseString.weather.forecast3days[0]
@@ -148,9 +124,15 @@ module.exports = (robot) ->
 
   robot.logger.info "Initializing CronJob... #{user.room}"
   require('time')
+
+  #ProxyAgent = require('proxy-agent')
+  #proxy = process.env.http_proxy || 'http://168.219.61.252:8080';
+  #robot.logger.info "Setting proxy...", proxy
+  #agent = new ProxyAgent(proxy)
+  agent = null
+
   CronJob = require('cron').CronJob
   tz = 'Asia/Seoul'
-  #new CronJob('0 */5 * * * *', everyFiveMinutes, null, true, tz)
   new CronJob('0 15 11 * * 1-5', workdaysLunch, null, true, tz)
   new CronJob('0 0 18 * * 1-5', workdaysQuit, null, true, tz)
   new CronJob('0 20 10 * * 1-5', workdaysScrum, null, true, tz)

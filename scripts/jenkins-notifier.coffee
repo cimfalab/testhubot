@@ -66,6 +66,7 @@ module.exports = (robot) ->
 
     try
       data = req.body
+      console.log data
 
       if data.build.phase == 'FINISHED' or data.build.phase == 'FINALIZED'
         scm = ""
@@ -77,7 +78,7 @@ module.exports = (robot) ->
             build = "is still"
           else
             build = "started"
-          robot.send envelope, "\"#{data.name}\" build ##{data.build.number} #{build} failing (#{buildUrl})#{scm}" if shouldNotify(envelope.notstrat, data, @failing)
+          #robot.send envelope, "\"#{data.name}\" build ##{data.build.number} #{build} failing (#{buildUrl})#{scm}" if shouldNotify(envelope.notstrat, data, @failing)
           @failing.push data.name unless data.name in @failing
         if data.build.status == 'SUCCESS'
           if data.name in @failing
@@ -85,8 +86,7 @@ module.exports = (robot) ->
           else
             build = "succeeded"
           console.log "send"
-          #robot.send envelope, "#{data.name} build ##{data.build.number} #{build} (#{encodeURI(data.build.full_url)})"  if shouldNotify(envelope.notstrat, data, @failing)
-          robot.send envelope, "\"#{data.name}\" build ##{data.build.number} #{build} (#{buildUrl})#{scm}"  if shouldNotify(envelope.notstrat, data, @failing)
+          #robot.send envelope, "\"#{data.name}\" build ##{data.build.number} #{build} (#{buildUrl})#{scm}"  if shouldNotify(envelope.notstrat, data, @failing)
           index = @failing.indexOf data.name
           @failing.splice index, 1 if index isnt -1
           console.log "sent"
