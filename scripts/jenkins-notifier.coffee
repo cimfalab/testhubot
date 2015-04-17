@@ -71,14 +71,14 @@ module.exports = (robot) ->
       if data.build.phase == 'FINISHED' or data.build.phase == 'FINALIZED'
         scm = ""
         if data.build.scm
-          scm = "\nbranch: #{data.build.scm.branch}, commit #{data.build.scm.commit}"
+          scm = "\n  [branch] #{data.build.scm.branch}\n  [commitId] #{data.build.scm.commit}\n  [change] #{data.build.scm.changes}"
         buildUrl = "http://ci.dev.wsdk.io/#{data.build.url}"
         if data.build.status == 'FAILURE'
           if data.name in @failing
             build = "여전히 실패" # "is still"
           else
             build = "실패" # "started"
-          robot.send envelope, "\"#{data.name}\"<#{buildUrl}|##{data.build.number}> #{build} #{scm}"  if shouldNotify(envelope.notstrat, data, @failing)
+          robot.send envelope, "\"#{data.name}\"##{data.build.number}\n - 상태: #{build}\n - URL: #{buildUrl}\n - SCM: #{scm}"  if shouldNotify(envelope.notstrat, data, @failing)
           @failing.push data.name unless data.name in @failing
         if data.build.status == 'SUCCESS'
           if data.name in @failing
@@ -86,7 +86,7 @@ module.exports = (robot) ->
           else
             build = "성공" # "succeeded"
           console.log "send"
-          robot.send envelope, "\"#{data.name}\"<#{buildUrl}|##{data.build.number}> #{build} #{scm}"  if shouldNotify(envelope.notstrat, data, @failing)
+          robot.send envelope, "\"#{data.name}\"##{data.build.number}\n - 상태: #{build}\n - URL: #{buildUrl}\n - SCM: #{scm}"  if shouldNotify(envelope.notstrat, data, @failing)
           index = @failing.indexOf data.name
           @failing.splice index, 1 if index isnt -1
 
