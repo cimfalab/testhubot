@@ -81,7 +81,7 @@ module.exports = (robot) ->
             for path in paths
               path = path.trim()
               path = if path.length > LEN then '...' + path.slice(-1 * LEN) else path
-              contents += " - " + path + "\n"
+              contents += "  - " + path + "\n"
 
           scm = "\n  [branch] #{data.build.scm.branch}\n  [commitId] #{data.build.scm.commit}\n - 변경 내용:\n#{contents}"
         buildUrl = "http://ci.dev.wsdk.io/#{data.build.url}"
