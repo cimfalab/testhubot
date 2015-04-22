@@ -74,7 +74,7 @@ module.exports = (robot) ->
           changes = data.build.scm.changes.split('\n')
           affected_paths = data.build.scm.affected_paths.split('\n')
           contents = ""
-          LEN = 72
+          LEN = 64
           for value, index in changes
             contents += value + "\n"
             paths = affected_paths[index].replace(/[\[\]]+/g, '').split(',')
