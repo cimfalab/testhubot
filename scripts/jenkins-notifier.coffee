@@ -83,7 +83,7 @@ module.exports = (robot) ->
               path = if path.length > LEN then '...' + path.slice(-1 * LEN) else path
               contents += "  - " + path + "\n"
 
-          scm = "\n  [branch] #{data.build.scm.branch}\n  [commitId] #{data.build.scm.commit}\n - 변경 내용:\n#{contents}"
+          scm = "\n  [branch] #{data.build.scm.branch}\n  [commitId] #{data.build.scm.commit}\n - 변경 내용: #{contents}"
         buildUrl = "http://ci.dev.wsdk.io/#{data.build.url}"
         if data.build.status == 'FAILURE'
           if data.name in @failing
