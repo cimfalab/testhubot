@@ -118,8 +118,8 @@ module.exports = (robot) ->
               "[미세먼지] #{msgDust}"
           callback msg
 
-  workdaysScrum = ->
-    msg = '#Hubot 알림# 10분 뒤 Daily Scrum 시작(11-2 회의실)입니다. 각자 현황판 업데이트 후 정시에 체크인해 주세요.'
+  workdaysScrum = (place) ->
+    msg = "#Hubot 알림# 10분 뒤 Daily Scrum 시작(#{place})입니다. 각자 현황판 업데이트 후 정시에 체크인해 주세요."
     robot.send user, msg
 
   robot.logger.info "Initializing CronJob... #{user.room}"
@@ -135,7 +135,15 @@ module.exports = (robot) ->
   tz = 'Asia/Seoul'
   new CronJob('0 15 11 * * 1-5', workdaysLunch, null, true, tz)
   new CronJob('0 0 18 * * 1-5', workdaysQuit, null, true, tz)
-  new CronJob('0 20 10 * * 1-5', workdaysScrum, null, true, tz)
+  new CronJob('0 20 10 * * 1', ->
+    workdaysScrum('월요일 1103호')
+  , null, true, tz)
+  new CronJob('0 20 10 * * 2-4', ->
+    workdaysScrum('화-목요일 11-2 회의실')
+  , null, true, tz)
+  new CronJob('0 50 12 * * 5', ->
+    workdaysScrum('금요일 11-2 회의실')
+  , null, true, tz)
 
   robot.respond //i, (msg) ->
     msg.send "안녕하세요? Hubot입니다."
