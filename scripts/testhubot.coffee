@@ -136,7 +136,7 @@ module.exports = (robot) ->
   new CronJob('0 15 11 * * 1-5', workdaysLunch, null, true, tz)
   new CronJob('0 0 18 * * 1-5', workdaysQuit, null, true, tz)
   new CronJob('0 20 10 * * 1', ->
-    workdaysScrum('월요일 1103호')
+    workdaysScrum('월요일 1113호')
   , null, true, tz)
   new CronJob('0 20 10 * * 2-4', ->
     workdaysScrum('화-목요일 11-2 회의실')
