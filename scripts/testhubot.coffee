@@ -148,6 +148,10 @@ module.exports = (robot) ->
   #agent = new ProxyAgent(proxy)
   agent = null
 
+  # Use Google public DNS (Heroru's DNS 172.16.0.23 can't resolve 'openapi.seoul.go.kr' by timeout error?!)
+  robot.logger.info "Setting DNS servers..."
+  require('dns').setServers(['8.8.8.8'])
+
   CronJob = require('cron').CronJob
   tz = 'Asia/Seoul'
   new CronJob('0 15 11 * * 1-5', workdaysLunch, null, true, tz)
