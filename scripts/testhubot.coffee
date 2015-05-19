@@ -122,7 +122,6 @@ module.exports = (robot) ->
               try
                 if forecastString.result.code is 9200
                   forecast3days = forecastString.weather.forecast3days[0]
-                  console.log forecast3days.fcst3hour.sky
                   tomorrow =
                     high: forecast3days.fcstdaily.temperature.tmax2day
                     low: forecast3days.fcstdaily.temperature.tmin2day
@@ -190,14 +189,13 @@ module.exports = (robot) ->
     #help send message
     getCityAir (cityAir) ->
       msg.send "[미세먼지] #{cityAir}\n" +
-                "Air quality index\n" +
+                "[Air quality index]\n" +
                 " 0 - 50  좋음  대기오염 관련 질환자군에서도 영향이 유발되지 않을 수준\n" +
                 " 51 -100 보통  환자군에게 만성 노출시 경미한 영향이 유발될 수 있는 수준\n" +
                 " 101-150 민감군영향   환자군 및 민감군에게 유해한 영향이 유발될 수 있는 수준\n" +
                 " 151-200 나쁨  환자군 및 민감군(어린이, 노약자 등)에게 유해한 영향 유발, 일반인도 건강상 불쾌감을 경험할 수 있는 수준\n" +
                 " 201-300 매우나쁨    환자군 및 민감군에게 급성 노출시 심각한 영향 유발, 일반인도 약한 영향이 유발될 수 있는 수준\n" +
-                " 300+    위험  환자군 및 민감군에게 응급 조치가 발생되거나, 일반인에게 유해한 영향이 유발될 수 있는 수준\n" +
-                "참고: http://en.wikipedia.org/wiki/Air_quality_index#South_Korea"
+                " 300+    위험  환자군 및 민감군에게 응급 조치가 발생되거나, 일반인에게 유해한 영향이 유발될 수 있는 수준"
     return
 
   robot.respond /(^|\s)weather(?=\s|$)/i, (msg) ->
