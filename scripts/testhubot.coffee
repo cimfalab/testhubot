@@ -29,7 +29,7 @@ module.exports = (robot) ->
     http = require 'http'
     text = ''
     # 69757368647474613437446b50476d is API key
-    #path = 'http://openapi.seoul.go.kr:8088/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/%EB%8F%99%EB%82%A8%EA%B6%8C'
+    path = 'http://openapi.seoul.go.kr:8088/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/%EB%8F%99%EB%82%A8%EA%B6%8C'
     #path = 'http://115.84.165.45:8088/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/%EB%8F%99%EB%82%A8%EA%B6%8C'
     options = {
       #agent: agent,
@@ -43,7 +43,7 @@ module.exports = (robot) ->
       }
     }
 
-    http.get(options, (res) ->
+    http.get(path, (res) ->
       body = ''
       res.on 'data', (data) ->
         body += data
