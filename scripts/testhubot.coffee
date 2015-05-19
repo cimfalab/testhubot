@@ -180,14 +180,14 @@ module.exports = (robot) ->
   robot.hear /#회의(.*)/i, (msg) ->
     fullMsg = msg.message.rawText
     beforeMin = 30
-    console.log fullMsg
     time = fullMsg.match(/(\d{4}).(\d{1,2}).(\d{1,2})\s+\d{2}:\d{2}/)[0]
+    console.log fullMsg, time
     return "" if time is null or time is ""
     cronDate = new Date(time)
     cronDate.setMinutes cronDate.getMinutes() - beforeMin
     CronJob = require("cron").CronJob
     job = new CronJob(cronDate, ->
-      cronMsg = "#Hubot 알림# 회의 30분 전입니다.\n" + fullMsg
+      cronMsg = "#Hubot 알림# 회의 #{beforeMin}분 전입니다.\n" + fullMsg
       robot.send user, cronMsg
       @stop()
     , null, true, tz)
