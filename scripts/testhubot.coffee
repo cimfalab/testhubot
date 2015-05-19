@@ -44,8 +44,8 @@ module.exports = (robot) ->
       }
     }
 
-    dns.resolve4 hostname, (e, addresses) ->
-      console.log 'addresses', addresses
+    dns.lookup hostname, (e, address, family) ->
+      console.log 'address/family/e/servers', address, family, e, dns.getServers()
       http.get(options, (res) ->
         body = ''
         res.on 'data', (data) ->
