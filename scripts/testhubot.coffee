@@ -32,8 +32,8 @@ module.exports = (robot) ->
     #path = 'http://openapi.seoul.go.kr:8088/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/%EB%8F%99%EB%82%A8%EA%B6%8C'
     #path = 'http://115.84.165.45:8088/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/%EB%8F%99%EB%82%A8%EA%B6%8C'
     options = {
-      agent: agent,
-      host: '115.84.165.45',
+      #agent: agent,
+      host: 'openapi.seoul.go.kr',
       hostname: 'openapi.seoul.go.kr',
       port: 8088,
       path: '/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/%EB%8F%99%EB%82%A8%EA%B6%8C',
@@ -66,7 +66,7 @@ module.exports = (robot) ->
         callback(text)
     ).on 'error', (e) ->
       console.log 'Got error: ' + e.message, options
-      getWeatherByPlanet e.message, callback
+      callback(e.message)
 
   workdaysQuit = ->
     getCityAir (cityAir) ->
@@ -191,12 +191,12 @@ module.exports = (robot) ->
     getCityAir (cityAir) ->
       msg.send "[미세먼지] #{cityAir}\n" +
                 "Air quality index\n" +
-                "0 - 50  좋음  대기오염 관련 질환자군에서도 영향이 유발되지 않을 수준\n" +
-                "51 -100 보통  환자군에게 만성 노출시 경미한 영향이 유발될 수 있는 수준\n" +
-                "101-150 민감군영향   환자군 및 민감군에게 유해한 영향이 유발될 수 있는 수준\n" +
-                "151-200 나쁨  환자군 및 민감군(어린이, 노약자 등)에게 유해한 영향 유발, 일반인도 건강상 불쾌감을 경험할 수 있는 수준\n" +
-                "201-300 매우나쁨    환자군 및 민감군에게 급성 노출시 심각한 영향 유발, 일반인도 약한 영향이 유발될 수 있는 수준\n" +
-                "300+    위험  환자군 및 민감군에게 응급 조치가 발생되거나, 일반인에게 유해한 영향이 유발될 수 있는 수준\n" +
+                " 0 - 50  좋음  대기오염 관련 질환자군에서도 영향이 유발되지 않을 수준\n" +
+                " 51 -100 보통  환자군에게 만성 노출시 경미한 영향이 유발될 수 있는 수준\n" +
+                " 101-150 민감군영향   환자군 및 민감군에게 유해한 영향이 유발될 수 있는 수준\n" +
+                " 151-200 나쁨  환자군 및 민감군(어린이, 노약자 등)에게 유해한 영향 유발, 일반인도 건강상 불쾌감을 경험할 수 있는 수준\n" +
+                " 201-300 매우나쁨    환자군 및 민감군에게 급성 노출시 심각한 영향 유발, 일반인도 약한 영향이 유발될 수 있는 수준\n" +
+                " 300+    위험  환자군 및 민감군에게 응급 조치가 발생되거나, 일반인에게 유해한 영향이 유발될 수 있는 수준\n" +
                 "참고: http://en.wikipedia.org/wiki/Air_quality_index#South_Korea"
     return
 
