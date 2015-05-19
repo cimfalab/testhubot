@@ -2,7 +2,7 @@
 #   Example scripts for you to examine and try out.
 #
 # Commands:
-#   hubot dust - Reply with dust condition guide
+#   hubot air - Reply with city air information and guide
 #   hubot weather - Reply with weather information about today and tomorrow
 #
 # Notes:
@@ -24,16 +24,16 @@ module.exports = (robot) ->
     #robot.logger.info msg
     robot.send user, msg
 
-  workdaysQuit = ->
+  getCityAir = (callback) ->
     # 미세먼지
     http = require 'http'
-    msgDust = ''
+    text = ''
     # 69757368647474613437446b50476d is API key
     #path = 'http://openapi.seoul.go.kr:8088/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/%EB%8F%99%EB%82%A8%EA%B6%8C'
     #path = 'http://115.84.165.45:8088/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/%EB%8F%99%EB%82%A8%EA%B6%8C'
     options = {
       agent: agent,
-      host: 'openapi.seoul.go.kr',
+      host: '115.84.165.45',
       hostname: 'openapi.seoul.go.kr',
       port: 8088,
       path: '/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/%EB%8F%99%EB%82%A8%EA%B6%8C',
@@ -42,10 +42,6 @@ module.exports = (robot) ->
         'Accept': 'application/json'
       }
     }
-
-    callback = (text) ->
-      msg = "#Hubot 알림# 하루 업무를 마무리할 시간이네요.\n" + text
-      robot.send user, msg
 
     http.get(options, (res) ->
       body = ''
@@ -64,15 +60,21 @@ module.exports = (robot) ->
         currentAir = body.RealtimeCityAir.row[0].IDEX_NM
         currentAirValue = body.RealtimeCityAir.row[0].IDEX_MVL
 
-        #msgDust = "현재 공기상태 > #{currentAir}, 공기상태 평점 > #{currentAirValue}, 측정시간 > #{time}, 미세먼지(㎍/㎥)(pm10)값 > #{pm10}, 초미세먼지농도(㎍/㎥)(pm25)값 > #{pm25}, 오존 > #{o3}, 이산화질소 > #{no2}, 아황산가스 > #{so2}, 일산화탄소 > #{co}"
-        msgDust = "현재 공기상태: #{currentAir} / 공기상태 평점: #{currentAirValue} / 미세먼지(㎍/㎥)(pm10)값: #{pm10} / 초미세먼지농도(㎍/㎥)(pm25)값: #{pm25}"
+        #text = "현재 공기상태 > #{currentAir}, 공기상태 평점 > #{currentAirValue}, 측정시간 > #{time}, 미세먼지(㎍/㎥)(pm10)값 > #{pm10}, 초미세먼지농도(㎍/㎥)(pm25)값 > #{pm25}, 오존 > #{o3}, 이산화질소 > #{no2}, 아황산가스 > #{so2}, 일산화탄소 > #{co}"
+        text = "현재 공기상태: #{currentAir} / 공기상태 평점: #{currentAirValue} / 미세먼지(㎍/㎥)(pm10)값: #{pm10} / 초미세먼지농도(㎍/㎥)(pm25)값: #{pm25}"
 
-        getWeatherByPlanet msgDust, callback
+        callback(text)
     ).on 'error', (e) ->
       console.log 'Got error: ' + e.message, options
       getWeatherByPlanet e.message, callback
 
-  getVerboseWeatherByPlanet = (msgDust, callback) ->
+  workdaysQuit = ->
+    getCityAir (cityAir) ->
+      getWeatherByPlanet cityAir, (text) ->
+        msg = "#Hubot 알림# 하루 업무를 마무리할 시간이네요.\n" + text
+        robot.send user, msg
+
+  getVerboseWeatherByPlanet = (cityAir, callback) ->
     console.log 'getVerboseWeatherByPlanet'
     options = {
       agent: agent
@@ -100,23 +102,39 @@ module.exports = (robot) ->
         finally
           callback msg
 
-  getWeatherByPlanet = (msgDust, callback) ->
-    robot.http('http://apis.skplanetx.com/weather/current/hourly?version=1&lat=37.3713180&lon=127.1223530')
+  getWeatherByPlanet = (cityAir, callback) ->
+    lat = 37.3713180
+    lon = 127.1223530
+    robot.http("http://apis.skplanetx.com/weather/current/hourly?version=1&lat=#{lat}&lon=#{lon}")
       .header('appKey', '4bc92446-d191-39a5-936b-0e73f2c64fa5')
       .header('Accept', 'application/json')
       .get() (err, res, body) ->
         msg = ""
-        parseString = JSON.parse(body)
-        try
-          if parseString.result.code is 9200
-            current = parseString.weather.hourly[0]
-            msg = msg +
-                "[현재날씨] #{current.sky.name} (#{current.temperature.tc}°)\n" +
-                "[내일날씨] wsdkbot에게 물어보세요~ (/dm @wsdkbot weather)\n"
-        finally
-          msg = msg +
-              "[미세먼지] #{msgDust}"
-          callback msg
+        currentString = JSON.parse(body)
+        if currentString.result.code is 9200
+          current = currentString.weather.hourly[0]
+          # 단기 예보
+          robot.http("http://apis.skplanetx.com/weather/forecast/3days?version=1&lat=#{lat}&lon=#{lon}")
+            .header('appKey', '4bc92446-d191-39a5-936b-0e73f2c64fa5')
+            .header('Accept', 'application/json')
+            .get() (err, res, body) ->
+              forecastString = JSON.parse(body)
+              try
+                if forecastString.result.code is 9200
+                  forecast3days = forecastString.weather.forecast3days[0]
+                  console.log forecast3days.fcst3hour.sky
+                  tomorrow =
+                    high: forecast3days.fcstdaily.temperature.tmax2day
+                    low: forecast3days.fcstdaily.temperature.tmin2day
+                    sky:
+                      name: forecast3days.fcst3hour.sky.name16hour
+                  msg = msg +
+                    "[현재날씨] #{current.sky.name} (#{current.temperature.tc}°)\n" +
+                    "[내일날씨] 오전 9시 기준 #{tomorrow.sky.name} (#{tomorrow.high}° #{tomorrow.low}°) (자세한 날씨는 /dm @wsdkbot weather)\n"
+              finally
+                msg = msg +
+                    "[미세먼지] #{cityAir}"
+              callback msg
 
   workdaysScrum = (place) ->
     msg = "#Hubot 알림# 10분 뒤 Daily Scrum 시작(#{place})입니다. 각자 현황판 업데이트 후 정시에 체크인해 주세요."
@@ -168,9 +186,11 @@ module.exports = (robot) ->
     , null, true, tz)
     #msg.send "회의 알람이 등록되었습니다."
 
-  robot.respond /(^|\s)dust(?=\s|$)/i, (msg) ->
+  robot.respond /(^|\s)air|미세먼지(?=\s|$)/i, (msg) ->
     #help send message
-    msg.send "Air quality index\n" +
+    getCityAir (cityAir) ->
+      msg.send "[미세먼지] #{cityAir}\n" +
+                "Air quality index\n" +
                 "0 - 50  좋음  대기오염 관련 질환자군에서도 영향이 유발되지 않을 수준\n" +
                 "51 -100 보통  환자군에게 만성 노출시 경미한 영향이 유발될 수 있는 수준\n" +
                 "101-150 민감군영향   환자군 및 민감군에게 유해한 영향이 유발될 수 있는 수준\n" +
