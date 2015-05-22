@@ -19,12 +19,19 @@ module.exports = (robot) ->
   #user.user = 'mariah'
   user.type = 'groupchat'
 
+  APP_KEY = '4bc92446-d191-39a5-936b-0e73f2c64fa5'
+
   workdaysLunch = ->
     msg = '#Hubot 알림# 곧 점심 시간입니다. 챙겨야 할 것: 식권, 자기 방과 옆 방의 동료, 비더레^^'
     #robot.logger.info msg
     robot.send user, msg
 
   getCityAir = (callback) ->
+    # Use Google public DNS (Heroru's DNS 172.16.0.23 can't resolve 'openapi.seoul.go.kr' by timeout error?!)
+    robot.logger.info "Setting DNS servers..."
+    dns = require('dns')
+    dns.setServers(['8.8.8.8'])
+
     # 미세먼지
     http = require 'http'
     text = ''
@@ -71,8 +78,36 @@ module.exports = (robot) ->
         console.log 'Got error: ' + e.message, options
         callback(e.message)
 
+  getCityAirByAirKorea = (callback) ->
+    options = {
+      agent: agent
+    }
+    KEY = 'GvlQdz9sKwdP7VKSZcuyxq7X1Fqwo5SoiPtP2qNdveH5tNPFVPj5U%2FTkQvEx7pLIWTYzAkUjq1rlcVhoaM9qMg%3D%3D'
+    STATION = '정자1동'
+    GRADES = ['', '좋음', '보통', '나쁨', '매우나쁨']
+    url = "http://openapi.airkorea.or.kr/openapi/services/rest/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty?sidoName=경기&_type=json&ServiceKey=#{KEY}"
+    robot.http(url, options)
+      .header('Accept', 'application/json')
+      .get() (err, res, body) ->
+        if err
+          res.send "Got error: #{err}"
+          return
+
+        msg = ""
+        parseString = require('xml2js').parseString
+        parseString body, (err, result) ->
+          try
+            i = 0
+            arr = result.response.body[0].items[0].item
+            while i < arr.length
+              item = arr[i]
+              msg = "현재 공기상태 (#{STATION} 측정소): #{GRADES[item.pm10Grade]} / 미세먼지(㎍/㎥)(pm10)값: #{item.pm10Value}" if item.stationName[0] is STATION
+              i++
+          finally
+            callback msg
+
   workdaysQuit = ->
-    getCityAir (cityAir) ->
+    getCityAirByAirKorea (cityAir) ->
       getWeatherByPlanet cityAir, (text) ->
         msg = "#Hubot 알림# 하루 업무를 마무리할 시간이네요.\n" + text
         robot.send user, msg
@@ -84,11 +119,11 @@ module.exports = (robot) ->
     }
     robot.http('http://apis.skplanetx.com/weather/forecast/3days?version=1&lat=37.3713180&lon=127.1223530&foretxt=Y', options)
     #robot.http('http://apis.skplanetx.com/weather/forecast/3days?version=1&city=경기&county=성남시 분당구&village=수내&foretxt=Y')
-      .header('appKey', '4bc92446-d191-39a5-936b-0e73f2c64fa5')
+      .header('appKey', APP_KEY)
       .header('Accept', 'application/json')
       .get() (err, res, body) ->
         if err
-          res.send "Encountered an error :( #{err}"
+          res.send "Got error: #{err}"
           return
 
         msg = ""
@@ -109,7 +144,7 @@ module.exports = (robot) ->
     lat = 37.3713180
     lon = 127.1223530
     robot.http("http://apis.skplanetx.com/weather/current/hourly?version=1&lat=#{lat}&lon=#{lon}")
-      .header('appKey', '4bc92446-d191-39a5-936b-0e73f2c64fa5')
+      .header('appKey', APP_KEY)
       .header('Accept', 'application/json')
       .get() (err, res, body) ->
         msg = ""
@@ -150,11 +185,6 @@ module.exports = (robot) ->
   #robot.logger.info "Setting proxy...", proxy
   #agent = new ProxyAgent(proxy)
   agent = null
-
-  # Use Google public DNS (Heroru's DNS 172.16.0.23 can't resolve 'openapi.seoul.go.kr' by timeout error?!)
-  robot.logger.info "Setting DNS servers..."
-  dns = require('dns')
-  dns.setServers(['8.8.8.8'])
 
   CronJob = require('cron').CronJob
   tz = 'Asia/Seoul'
