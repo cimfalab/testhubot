@@ -26,58 +26,6 @@ module.exports = (robot) ->
     #robot.logger.info msg
     robot.send user, msg
 
-  getCityAir = (callback) ->
-    # Use Google public DNS (Heroru's DNS 172.16.0.23 can't resolve 'openapi.seoul.go.kr' by timeout error?!)
-    robot.logger.info "Setting DNS servers..."
-    dns = require('dns')
-    dns.setServers(['8.8.8.8'])
-
-    # 미세먼지
-    http = require 'http'
-    text = ''
-    # 69757368647474613437446b50476d is API key
-    #path = 'http://openapi.seoul.go.kr:8088/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/%EB%8F%99%EB%82%A8%EA%B6%8C'
-    #path = 'http://115.84.165.45:8088/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/%EB%8F%99%EB%82%A8%EA%B6%8C'
-    hostname = 'openapi.seoul.go.kr'
-    options = {
-      agent: false,
-      host: hostname,
-      hostname: hostname,
-      port: 8088,
-      path: '/69757368647474613437446b50476d/json/RealtimeCityAir/1/5/%EB%8F%99%EB%82%A8%EA%B6%8C',
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json'
-      }
-    }
-
-    dns.lookup hostname, (e, address, family) ->
-      console.log 'address/family/e/servers', address, family, e, dns.getServers()
-      http.get(options, (res) ->
-        body = ''
-        res.on 'data', (data) ->
-          body += data
-        res.on 'end', () ->
-          try body = JSON.parse(body) catch e then console.log 'Got error when parsing: ' + e.message
-
-          time = body.RealtimeCityAir.row[0].MSRDT
-          pm10 = body.RealtimeCityAir.row[0].PM10
-          pm25 = body.RealtimeCityAir.row[0].PM25
-          #o3 = body.RealtimeCityAir.row[0].O3
-          #no2 = body.RealtimeCityAir.row[0].NO2
-          #co = body.RealtimeCityAir.row[0].CO
-          #so2 = body.RealtimeCityAir.row[0].SO2
-          currentAir = body.RealtimeCityAir.row[0].IDEX_NM
-          currentAirValue = body.RealtimeCityAir.row[0].IDEX_MVL
-
-          #text = "현재 공기상태 > #{currentAir}, 공기상태 평점 > #{currentAirValue}, 측정시간 > #{time}, 미세먼지(㎍/㎥)(pm10)값 > #{pm10}, 초미세먼지농도(㎍/㎥)(pm25)값 > #{pm25}, 오존 > #{o3}, 이산화질소 > #{no2}, 아황산가스 > #{so2}, 일산화탄소 > #{co}"
-          text = "현재 공기상태: #{currentAir} / 공기상태 평점: #{currentAirValue} / 미세먼지(㎍/㎥)(pm10)값: #{pm10} / 초미세먼지농도(㎍/㎥)(pm25)값: #{pm25}"
-
-          callback(text)
-      ).on 'error', (e) ->
-        console.log 'Got error: ' + e.message, options
-        callback(e.message)
-
   getCityAirByAirKorea = (callback) ->
     options = {
       agent: agent
@@ -225,15 +173,13 @@ module.exports = (robot) ->
 
   robot.respond /(^|\s)air|미세먼지(?=\s|$)/i, (msg) ->
     #help send message
-    getCityAir (cityAir) ->
+    getCityAirByAirKorea (cityAir) ->
       msg.send "[미세먼지] #{cityAir}\n" +
                 "[Air quality index]\n" +
-                " 0 - 50  좋음  대기오염 관련 질환자군에서도 영향이 유발되지 않을 수준\n" +
-                " 51 -100 보통  환자군에게 만성 노출시 경미한 영향이 유발될 수 있는 수준\n" +
-                " 101-150 민감군영향   환자군 및 민감군에게 유해한 영향이 유발될 수 있는 수준\n" +
-                " 151-200 나쁨  환자군 및 민감군(어린이, 노약자 등)에게 유해한 영향 유발, 일반인도 건강상 불쾌감을 경험할 수 있는 수준\n" +
-                " 201-300 매우나쁨    환자군 및 민감군에게 급성 노출시 심각한 영향 유발, 일반인도 약한 영향이 유발될 수 있는 수준\n" +
-                " 300+    위험  환자군 및 민감군에게 응급 조치가 발생되거나, 일반인에게 유해한 영향이 유발될 수 있는 수준"
+                " 0~30 좋음\n" +
+                " 31~80 보통\n" +
+                " 81~150 나쁨  장시간 또는 무리한 실외활동 제한, 특히 눈이 아픈 증사이 있거나, 기침이나 목의 통증으로 불편한 사람은 실외활동을 피해야 함\n" +
+                " 151~ 매우나쁨  장시간 또는 무리한 실외 활동제한, 목의 통증과 기침등의 증상이 있는 사람은 실외활동을 피해야 함"
     return
 
   robot.respond /(^|\s)weather(?=\s|$)/i, (msg) ->
