@@ -22,7 +22,8 @@
     "hubot-slack": "^3.3.0",
     "hubot-youtube": "^0.1.2",
     "time": "^0.11.1",
-    "xml2js": "^0.4.5"
+    "xml2js": "^0.4.5",
+    "jsonfile": "2.0.1",
   },
   "engines": {
     "node": "0.12.3"

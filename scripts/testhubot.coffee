@@ -19,6 +19,9 @@ module.exports = (robot) ->
   #user.user = 'mariah'
   user.type = 'groupchat'
 
+  jf = require("jsonfile")
+  file = "scripts/data.json"
+
   APP_KEY = '4bc92446-d191-39a5-936b-0e73f2c64fa5'
 
   workdaysLunch = ->
@@ -167,8 +170,15 @@ module.exports = (robot) ->
     job = new CronJob(cronDate, ->
       cronMsg = "#Hubot 알림# 회의 #{beforeMin}분 전입니다.\n" + fullMsg
       robot.send user, cronMsg
+      removeJob fullMsg
       @stop()
     , null, true, tz)
+    obj =
+      time: time
+      msg: fullMsg
+    readJSONFile (data) ->
+      data.push obj
+      writeJSONFile data
     #msg.send "회의 알람이 등록되었습니다."
 
   robot.respond /(^|\s)air|미세먼지(?=\s|$)/i, (msg) ->
@@ -181,6 +191,40 @@ module.exports = (robot) ->
                 " 81~150 나쁨  장시간 또는 무리한 실외활동 제한, 특히 눈이 아픈 증사이 있거나, 기침이나 목의 통증으로 불편한 사람은 실외활동을 피해야 함\n" +
                 " 151~ 매우나쁨  장시간 또는 무리한 실외 활동제한, 목의 통증과 기침등의 증상이 있는 사람은 실외활동을 피해야 함"
     return
+
+  # "#init" 입력시 data.json 파일의 내용을 모두 알람으로 등록
+  robot.hear /#init/i, (msg) ->
+    readJSONFile (data) ->
+      data.forEach (obj) ->
+        beforeMin = 30
+        cronDate = new Date(obj.time)
+        cronDate.setMinutes cronDate.getMinutes() - beforeMin
+        CronJob = require("cron").CronJob
+        job = new CronJob(cronDate, ->
+          cronMsg = "#Hubot 알림# 회의 #{beforeMin}분 전입니다.\n" + obj.msg
+          robot.send user, cronMsg
+          removeJob obj.msg
+          @stop()
+        , null, true, tz)
+    #msg.send "일정 초기화가 완료되었습니다."
+  
+  readJSONFile = (callback) ->
+    jf.readFile file, (err, data) ->
+      if err
+        console.log err
+      else
+        callback data
+
+  writeJSONFile = (data) ->
+    jf.writeFile file, data, (err) ->
+      console.log err  if err
+
+  removeJob = (msg) ->
+    readJSONFile (data) ->
+      tempData = []
+      data.forEach (obj) ->
+        tempData.push obj  if obj.msg isnt msg
+      writeJSONFile tempData
 
   robot.respond /(^|\s)weather(?=\s|$)/i, (msg) ->
     getVerboseWeatherByPlanet '', (text) ->
