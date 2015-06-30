@@ -170,15 +170,18 @@ module.exports = (robot) ->
     job = new CronJob(cronDate, ->
       cronMsg = "#Hubot 알림# 회의 #{beforeMin}분 전입니다.\n" + fullMsg
       robot.send user, cronMsg
-      removeJob fullMsg
+      removeAlarmJob fullMsg
       @stop()
     , null, true, tz)
     obj =
       time: time
       msg: fullMsg
-    readJSONFile (data) ->
-      data.push obj
-      writeJSONFile data
+    readJSONFile (err, data) ->
+      if err
+        console.log err
+      else
+        data.push obj
+        writeJSONFile data
     #msg.send "회의 알람이 등록되었습니다."
 
   robot.respond /(^|\s)air|미세먼지(?=\s|$)/i, (msg) ->
@@ -192,39 +195,45 @@ module.exports = (robot) ->
                 " 151~ 매우나쁨  장시간 또는 무리한 실외 활동제한, 목의 통증과 기침등의 증상이 있는 사람은 실외활동을 피해야 함"
     return
 
-  # "#init" 입력시 data.json 파일의 내용을 모두 알람으로 등록
-  robot.hear /#init/i, (msg) ->
-    readJSONFile (data) ->
-      data.forEach (obj) ->
-        beforeMin = 30
-        cronDate = new Date(obj.time)
-        cronDate.setMinutes cronDate.getMinutes() - beforeMin
-        CronJob = require("cron").CronJob
-        job = new CronJob(cronDate, ->
-          cronMsg = "#Hubot 알림# 회의 #{beforeMin}분 전입니다.\n" + obj.msg
-          robot.send user, cronMsg
-          removeJob obj.msg
-          @stop()
-        , null, true, tz)
-    #msg.send "일정 초기화가 완료되었습니다."
-  
   readJSONFile = (callback) ->
     jf.readFile file, (err, data) ->
       if err
-        console.log err
+        callback err, null
       else
-        callback data
+        callback null, data
 
   writeJSONFile = (data) ->
     jf.writeFile file, data, (err) ->
       console.log err  if err
 
-  removeJob = (msg) ->
-    readJSONFile (data) ->
-      tempData = []
-      data.forEach (obj) ->
-        tempData.push obj  if obj.msg isnt msg
-      writeJSONFile tempData
+  removeAlarmJob = (msg) ->
+    readJSONFile (err, data) ->
+      if err
+        console.log err
+      else
+        tempData = []
+        data.forEach (obj) ->
+          tempData.push obj  if obj.msg isnt msg
+        writeJSONFile tempData
+
+  # 알람초기화. data.json 파일의 내용을 모두 알람으로 등록
+  init = ->
+    readJSONFile (err, data) ->
+      if err
+        console.log err
+      else
+        data.forEach (obj) ->
+          beforeMin = 30
+          cronDate = new Date(obj.time)
+          cronDate.setMinutes cronDate.getMinutes() - beforeMin
+          CronJob = require("cron").CronJob
+          job = new CronJob(cronDate, ->
+            cronMsg = "#Hubot 알림# 회의 #{beforeMin}분 전입니다.\n" + obj.msg
+            robot.send user, cronMsg
+            removeAlarmJob obj.msg
+            @stop()
+          , null, true, tz)
+  init()
 
   robot.respond /(^|\s)weather(?=\s|$)/i, (msg) ->
     getVerboseWeatherByPlanet '', (text) ->
