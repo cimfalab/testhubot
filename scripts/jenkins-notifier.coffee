@@ -77,11 +77,13 @@ module.exports = (robot) ->
           LEN = 64
           for value, index in changes
             contents += value + "\n"
-            paths = affected_paths[index].replace(/[\[\]]+/g, '').split(',')
-            for path in paths
-              path = path.trim()
-              path = if path.length > LEN then '...' + path.slice(-1 * LEN) else path
-              contents += "  - " + path + "\n"
+            affected_path = affected_paths[index]
+            if affected_path
+              paths = affected_path.replace(/[\[\]]+/g, '').split(',')
+              for path in paths
+                path = path.trim()
+                path = if path.length > LEN then '...' + path.slice(-1 * LEN) else path
+                contents += "  - " + path + "\n"
 
           scm = "\n  [branch] #{data.build.scm.branch}\n  [commitId] #{data.build.scm.commit}\n - 변경 내용: #{contents}"
         buildUrl = "http://ci.dev.wsdk.io/#{data.build.url}"
