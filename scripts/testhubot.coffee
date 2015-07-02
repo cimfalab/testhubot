@@ -19,8 +19,8 @@ module.exports = (robot) ->
   #user.user = 'mariah'
   user.type = 'groupchat'
 
-  jf = require("jsonfile")
-  file = "scripts/data.json"
+  jf = require('jsonfile')
+  file = 'scripts/data.json'
 
   APP_KEY = '4bc92446-d191-39a5-936b-0e73f2c64fa5'
 
@@ -216,24 +216,24 @@ module.exports = (robot) ->
           tempData.push obj  if obj.msg isnt msg
         writeJSONFile tempData
 
-  # 알람초기화. data.json 파일의 내용을 모두 알람으로 등록
-  init = ->
+  # 알람 초기화: data.json 파일의 내용을 모두 알람으로 등록
+  initAlarms = ->
     readJSONFile (err, data) ->
       if err
         console.log err
       else
+        beforeMin = 30
+        CronJob = require("cron").CronJob
         data.forEach (obj) ->
-          beforeMin = 30
           cronDate = new Date(obj.time)
           cronDate.setMinutes cronDate.getMinutes() - beforeMin
-          CronJob = require("cron").CronJob
           job = new CronJob(cronDate, ->
             cronMsg = "#Hubot 알림# 회의 #{beforeMin}분 전입니다.\n" + obj.msg
             robot.send user, cronMsg
             removeAlarmJob obj.msg
             @stop()
           , null, true, tz)
-  init()
+  initAlarms()
 
   robot.respond /(^|\s)weather(?=\s|$)/i, (msg) ->
     getVerboseWeatherByPlanet '', (text) ->
