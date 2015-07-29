@@ -23,9 +23,10 @@ module.exports = (robot) ->
     envelope.room = query.room if query.room
 
     try
-      data = req.body
+      #data = querystring.stringify(req.body)
+      data = JSON.stringify(req.body)
       console.log data
-      robot.send envelope, req.body
+      robot.send envelope, data
 
     catch error
       console.log "server-notify error: #{error}. Data: #{req.body}"

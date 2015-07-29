@@ -60,7 +60,7 @@ module.exports = (robot) ->
 
     envelope = {notstrat:"Fs"}
     envelope.room = query.room if query.room
-    envelope.notstrat = query.notstrat if query.notstrat 
+    envelope.notstrat = query.notstrat if query.notstrat
     if query.type
       envelope.user = {type: query.type}
 
