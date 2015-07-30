@@ -25,7 +25,7 @@ module.exports = (robot) ->
     try
       #data = querystring.stringify(req.body)
       #data = JSON.stringify(req.body)
-      data = "#{req.body.title}\n#{req.body.data}\n"
+      data = "#{req.body.title} - #{new Date()}\n#{req.body.data}\n"
       console.log data
       robot.send envelope, data
 
