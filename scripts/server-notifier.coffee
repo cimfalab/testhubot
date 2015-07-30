@@ -2,7 +2,7 @@
 #
 # URLS:
 #   POST /hubot/server-notify?room=<room>
-# 
+#
 # Authors:
 #   Kim Kangho
 #   Kim Sangjin
@@ -24,7 +24,8 @@ module.exports = (robot) ->
 
     try
       #data = querystring.stringify(req.body)
-      data = JSON.stringify(req.body)
+      #data = JSON.stringify(req.body)
+      data = "#{req.body.title} - #{new Date()}\n#{req.body.data}\n"
       console.log data
       robot.send envelope, data
 
