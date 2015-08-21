@@ -25,7 +25,7 @@ module.exports = (robot) ->
   APP_KEY = '4bc92446-d191-39a5-936b-0e73f2c64fa5'
 
   workdaysLunch = ->
-    msg = '#Hubot 알림# 곧 점심 시간입니다. 챙겨야 할 것: 식권, 자기 방과 옆 방의 동료, 비더레^^'
+    msg = '#Hubot 알림# 곧 점심 시간입니다. 챙겨야 할 것: 식권, 자기 방과 옆 방의 동료^^'
     #robot.logger.info msg
     robot.send user, msg
 
@@ -141,11 +141,8 @@ module.exports = (robot) ->
   tz = 'Asia/Seoul'
   new CronJob('0 15 11 * * 1-5', workdaysLunch, null, true, tz)
   new CronJob('0 0 18 * * 1-5', workdaysQuit, null, true, tz)
-  new CronJob('0 20 10 * * 1', ->
-    workdaysScrum('월요일 1113호')
-  , null, true, tz)
-  new CronJob('0 20 10 * * 2-4', ->
-    workdaysScrum('화-목요일 11-2 회의실')
+  new CronJob('0 20 10 * * 1-4', ->
+    workdaysScrum('월-목요일 11-2 회의실')
   , null, true, tz)
   new CronJob('0 50 12 * * 5', ->
     workdaysScrum('금요일 11-2 회의실')
