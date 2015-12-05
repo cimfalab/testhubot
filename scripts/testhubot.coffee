@@ -180,7 +180,7 @@ module.exports = (robot) ->
         data.push obj
         writeJSONFile data
     msg.send "회의 알람이 등록되었습니다.\n" +
-                "#Hubot 캠페인# 회의는 간결하게! 회의 시간에는 적극적이고 겸손하게!"
+                "#Hubot 캠페인# 회의는 간결하게! 적극적이고 겸손하게!"
 
   robot.respond /(^|\s)air|미세먼지(?=\s|$)/i, (msg) ->
     #help send message
