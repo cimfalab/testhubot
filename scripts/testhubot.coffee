@@ -204,8 +204,7 @@ module.exports = (robot) ->
 
   robot.respond /(^|\s)weather(?=\s|$)/i, (msg) ->
       getWeatherByPlanet '', (text) ->
-        msg = text
-        robot.send user, msg
+        msg.send user, text
 
   robot.respond /(^|\s)air|미세먼지(?=\s|$)/i, (msg) ->
     #help send message
