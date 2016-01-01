@@ -203,8 +203,9 @@ module.exports = (robot) ->
                 "#Hubot 캠페인# 회의는 간결하게! 적극적이고 겸손하게!"
 
   robot.respond /(^|\s)weather(?=\s|$)/i, (msg) ->
-      getWeatherByPlanet '', (text) ->
-        msg.send user, text
+    getVerboseWeatherByPlanet '', (text) ->
+      msg.send text
+    return
 
   robot.respond /(^|\s)air|미세먼지(?=\s|$)/i, (msg) ->
     #help send message
@@ -256,11 +257,6 @@ module.exports = (robot) ->
             @stop()
           , null, true, tz)
   initAlarms()
-
-  robot.respond /(^|\s)weather(?=\s|$)/i, (msg) ->
-    getVerboseWeatherByPlanet '', (text) ->
-      msg.send text
-    return
 
   # robot.hear /badger/i, (msg) ->
   #   msg.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"
