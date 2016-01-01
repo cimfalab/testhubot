@@ -161,7 +161,7 @@ module.exports = (robot) ->
     envelope.room = query.room if query.room
 
     try
-      data = "#{req.body}"
+      data = "#{req.body.message}"
       robot.send envelope, data
 
     catch error
