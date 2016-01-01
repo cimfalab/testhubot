@@ -12,6 +12,9 @@
 #
 #   These are from the scripting documentation: https://github.com/github/hubot/blob/master/docs/scripting.md
 
+url = require('url')
+querystring = require('querystring')
+
 module.exports = (robot) ->
 
   user = {}
