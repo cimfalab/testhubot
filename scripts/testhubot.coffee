@@ -139,14 +139,14 @@ module.exports = (robot) ->
 
   CronJob = require('cron').CronJob
   tz = 'Asia/Seoul'
-  new CronJob('0 15 11 * * 1-5', workdaysLunch, null, true, tz)
-  new CronJob('0 0 18 * * 1-5', workdaysQuit, null, true, tz)
-  new CronJob('0 20 10 * * 1-3,5', ->
-    workdaysScrum('월-수요일/금요일 11-2 회의실')
-  , null, true, tz)
-  new CronJob('0 50 12 * * 4', ->
-    workdaysScrum('목요일 11-2 회의실')
-  , null, true, tz)
+  # new CronJob('0 15 11 * * 1-5', workdaysLunch, null, true, tz)
+  # new CronJob('0 0 18 * * 1-5', workdaysQuit, null, true, tz)
+  # new CronJob('0 20 10 * * 1-3,5', ->
+  #   workdaysScrum('월-수요일/금요일 11-2 회의실')
+  # , null, true, tz)
+  # new CronJob('0 50 12 * * 4', ->
+  #   workdaysScrum('목요일 11-2 회의실')
+  # , null, true, tz)
 
   robot.respond //i, (msg) ->
     msg.send "안녕하세요? Hubot입니다."
