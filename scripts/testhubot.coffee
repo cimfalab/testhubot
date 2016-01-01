@@ -148,6 +148,23 @@ module.exports = (robot) ->
   #   workdaysScrum('목요일 11-2 회의실')
   # , null, true, tz)
 
+  robot.router.post "/hubot/echo", (req, res) ->
+
+    query = querystring.parse(url.parse(req.url).query)
+
+    res.end('')
+
+    envelope = {}
+    envelope.room = query.room if query.room
+
+    try
+      data = "#{req.body}"
+      robot.send envelope, data
+
+    catch error
+      console.log "echo error: #{error}"
+      console.log error.stack
+
   robot.respond //i, (msg) ->
     msg.send "안녕하세요? Hubot입니다."
 
