@@ -62,7 +62,7 @@ module.exports = (robot) ->
 
   workdaysQuit = ->
     getCityAirByAirKorea (cityAir) ->
-      getWeatherByPlanet cityAir, (text) ->
+      weather.getWeatherByPlanet cityAir, (text) ->
         msg = "#Hubot 알림# 하루 업무를 마무리할 시간이네요.\n" + text
         robot.send user, msg
 
