@@ -105,9 +105,11 @@ module.exports = (robot) ->
       console.log 'ERROR: ' + e.message
       console.log error.stack
 
-  # Slack command: application/x-www-form-urlencoded
+  # Slack slash command "/weather" (application/x-www-form-urlencoded)
   robot.router.post "/hubot/weather", (req, res) ->
-    query = querystring.parse(url.parse(req.url).query)
+    console.log req.url
+    q= url.parse(req.url).query
+    query = querystring.parse(q)
 
     envelope = {}
     envelope.room = req.body.channel_name if req.body.channel_name
