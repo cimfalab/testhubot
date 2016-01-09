@@ -107,8 +107,7 @@ module.exports = (robot) ->
 
   # Slack slash command "/weather" (application/x-www-form-urlencoded)
   robot.router.post "/hubot/weather", (req, res) ->
-    console.log req.url
-    q= url.parse(req.url).query
+    q = url.parse(req.url).query
     query = querystring.parse(q)
 
     envelope = {}

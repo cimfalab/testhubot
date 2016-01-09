@@ -48,7 +48,6 @@ weather =
                 "[기상개황(오늘)]\n#{current}\n\n" +
                 "[기상개황(내일)]\n#{tomorrow}\n"
         finally
-          console.log msg
           callback msg
         return
 
