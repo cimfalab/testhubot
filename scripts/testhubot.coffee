@@ -15,6 +15,8 @@
 url = require('url')
 querystring = require('querystring')
 
+weather = require('./lib/weather')
+
 module.exports = (robot) ->
 
   user = {}
@@ -24,8 +26,6 @@ module.exports = (robot) ->
 
   jf = require('jsonfile')
   file = 'scripts/data.json'
-
-  APP_KEY = '4bc92446-d191-39a5-936b-0e73f2c64fa5'
 
   workdaysLunch = ->
     msg = '#Hubot 알림# 곧 점심 시간입니다. 챙겨야 할 것: 식권, 자기 방과 옆 방의 동료^^'
@@ -66,67 +66,6 @@ module.exports = (robot) ->
         msg = "#Hubot 알림# 하루 업무를 마무리할 시간이네요.\n" + text
         robot.send user, msg
 
-  getVerboseWeatherByPlanet = (cityAir, callback) ->
-    console.log 'getVerboseWeatherByPlanet'
-    options = {
-      agent: agent
-    }
-    robot.http('http://apis.skplanetx.com/weather/forecast/3days?version=1&lat=37.3713180&lon=127.1223530&foretxt=Y', options)
-    #robot.http('http://apis.skplanetx.com/weather/forecast/3days?version=1&city=경기&county=성남시 분당구&village=수내&foretxt=Y')
-      .header('appKey', APP_KEY)
-      .header('Accept', 'application/json')
-      .get() (err, res, body) ->
-        if err
-          res.send "Got error: #{err}"
-          return
-
-        msg = ""
-        parseString = JSON.parse(body)
-        console.log parseString
-        try
-          if parseString.result.code is 9200
-            weather = parseString.weather.forecast3days[0]
-            current = weather.fcstext.text1
-            tomorrow = weather.fcstext.text2
-            msg = msg +
-                "[기상개황(오늘)]\n#{current}\n\n" +
-                "[기상개황(내일)]\n#{tomorrow}\n"
-        finally
-          callback msg
-
-  getWeatherByPlanet = (cityAir, callback) ->
-    lat = 37.3713180
-    lon = 127.1223530
-    robot.http("http://apis.skplanetx.com/weather/current/hourly?version=1&lat=#{lat}&lon=#{lon}")
-      .header('appKey', APP_KEY)
-      .header('Accept', 'application/json')
-      .get() (err, res, body) ->
-        msg = ""
-        currentString = JSON.parse(body)
-        if currentString.result.code is 9200
-          current = currentString.weather.hourly[0]
-          # 단기 예보
-          robot.http("http://apis.skplanetx.com/weather/forecast/3days?version=1&lat=#{lat}&lon=#{lon}")
-            .header('appKey', '4bc92446-d191-39a5-936b-0e73f2c64fa5')
-            .header('Accept', 'application/json')
-            .get() (err, res, body) ->
-              forecastString = JSON.parse(body)
-              try
-                if forecastString.result.code is 9200
-                  forecast3days = forecastString.weather.forecast3days[0]
-                  tomorrow =
-                    high: forecast3days.fcstdaily.temperature.tmax2day
-                    low: forecast3days.fcstdaily.temperature.tmin2day
-                    sky:
-                      name: forecast3days.fcst3hour.sky.name16hour
-                  msg = msg +
-                    "[현재날씨] #{current.sky.name} (#{current.temperature.tc}°)\n" +
-                    "[내일날씨] 오전 9시 기준 #{tomorrow.sky.name} (#{tomorrow.high}° #{tomorrow.low}°) (자세한 날씨는 /dm @wsdkbot weather)\n"
-              finally
-                msg = msg +
-                    "[미세먼지] #{cityAir}"
-              callback msg
-
   workdaysScrum = (place) ->
     msg = "#Hubot 알림# 10분 뒤 Daily Scrum 시작(#{place})입니다. 각자 현황판 업데이트 후 정시에 체크인해 주세요."
     robot.send user, msg
@@ -152,7 +91,6 @@ module.exports = (robot) ->
   # , null, true, tz)
 
   robot.router.post "/hubot/echo", (req, res) ->
-
     query = querystring.parse(url.parse(req.url).query)
 
     res.end('')
@@ -163,10 +101,21 @@ module.exports = (robot) ->
     try
       data = "#{req.body.message}"
       robot.send envelope, data
-
     catch error
-      console.log "echo error: #{error}"
+      console.log 'ERROR: ' + e.message
       console.log error.stack
+
+  # Slack command: application/x-www-form-urlencoded
+  robot.router.post "/hubot/weather", (req, res) ->
+    query = querystring.parse(url.parse(req.url).query)
+
+    envelope = {}
+    envelope.room = req.body.channel_name if req.body.channel_name
+
+    weather.getVerboseWeatherByPlanet '', (text) ->
+      msg = "#{req.body.user_name}님, 반갑습니다.\n" + text
+      res.charset = 'utf8'
+      res.end(msg)
 
   robot.respond //i, (msg) ->
     msg.send "안녕하세요? Hubot입니다."
@@ -203,7 +152,7 @@ module.exports = (robot) ->
                 "#Hubot 캠페인# 회의는 간결하게! 적극적이고 겸손하게!"
 
   robot.respond /(^|\s)weather(?=\s|$)/i, (msg) ->
-    getVerboseWeatherByPlanet '', (text) ->
+    weather.getVerboseWeatherByPlanet '', (text) ->
       msg.send text
     return
 
