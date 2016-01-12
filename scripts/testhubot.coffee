@@ -37,7 +37,7 @@ module.exports = (robot) ->
       agent: agent
     }
     KEY = 'GvlQdz9sKwdP7VKSZcuyxq7X1Fqwo5SoiPtP2qNdveH5tNPFVPj5U%2FTkQvEx7pLIWTYzAkUjq1rlcVhoaM9qMg%3D%3D'
-    STATION = '정자1동'
+    STATION = '백현동'
     GRADES = ['', '좋음', '보통', '나쁨', '매우나쁨']
     url = "http://openapi.airkorea.or.kr/openapi/services/rest/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty?sidoName=경기&_type=json&ServiceKey=#{KEY}"
     robot.http(url, options)
@@ -149,8 +149,7 @@ module.exports = (robot) ->
       else
         data.push obj
         writeJSONFile data
-    msg.send "회의 알람이 등록되었습니다.\n" +
-                "#Hubot 캠페인# 회의는 간결하게! 적극적이고 겸손하게!"
+    msg.send "회의 알람이 등록되었습니다."
 
   robot.respond /(^|\s)weather(?=\s|$)/i, (msg) ->
     weather.getVerboseWeatherByPlanet '', (text) ->
